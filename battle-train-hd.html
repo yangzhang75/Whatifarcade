@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>IRONLINE — Battle Train of the Rail Oceans</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#15110d;color:#efe3cc;font-family:'VT323',monospace;display:flex;justify-content:center}
+#app{width:100%;max-width:480px;height:100dvh;display:flex;flex-direction:column;background:#15110d;position:relative}
+#topbar{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:8px 10px 6px}
+#topbar .brand{font-family:'Press Start 2P',monospace;font-size:13px;color:#e0a33a;letter-spacing:1px;text-shadow:1px 1px 0 #6e3a18;white-space:nowrap}
+.statbar{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.st{background:#241c14;border:2px solid #3a2e22;padding:4px 2px;text-align:center}
+.st b{font-family:'Press Start 2P',monospace;font-size:10px;display:block;color:#efe3cc;margin-bottom:3px}
+.st span{font-size:13px;color:#a8957a;text-transform:uppercase;letter-spacing:1px}
+.st.warn b{color:#e07b2a}
+.frame{flex:0 0 auto;border:3px solid #2a221b;border-left:0;border-right:0;background:#0e0b08;padding:3px 0}
+.cvwrap{position:relative;line-height:0}
+canvas{width:100%;display:block;image-rendering:pixelated;background:#d9a05e}
+#region{position:absolute;top:10px;left:0;right:0;text-align:center;font-family:'Press Start 2P',monospace;font-size:11px;color:#f4e3bc;letter-spacing:2px;text-shadow:1px 1px 0 #4a1e0e,0 0 6px rgba(0,0,0,0.6);opacity:0;transition:opacity 0.8s ease;pointer-events:none}
+#ticker{flex:0 0 auto;font-size:18px;line-height:1.2;color:#cdb894;padding:7px 12px;background:#1d1814;border-bottom:2px solid #3a2e22;min-height:34px;display:flex;align-items:center}
+#content{flex:1 1 auto;overflow-y:auto;min-height:0;padding:10px 12px;scrollbar-width:thin;scrollbar-color:#6b4a2e #1a1410;overflow-x:hidden}
+#content::-webkit-scrollbar{width:9px}
+#content::-webkit-scrollbar-track{background:#1a1410;border-left:2px solid #2a221b}
+#content::-webkit-scrollbar-thumb{background:#6b4a2e;border:1px solid #8a5a1a;border-radius:0}
+#content::-webkit-scrollbar-thumb:hover{background:#8a5a1a}
+#content::-webkit-scrollbar-thumb:active{background:#e0a33a}
+.view{animation:fade 0.2s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+#nextdepot{font-size:16px;color:#8a7a64;text-align:center;margin-bottom:8px;min-height:18px}
+#depot{display:none;background:#1d1814;border:3px solid #5f4d38;padding:14px 12px}
+#depot.show{display:block}
+#depot h3{font-family:'Press Start 2P',monospace;font-size:12px;color:#e0a33a;text-align:center;letter-spacing:1px;margin-bottom:4px}
+#depot .flav{font-size:16px;color:#a8957a;text-align:center;margin-bottom:12px;line-height:1.3}
+#depot .opt{width:100%;min-height:48px;margin-bottom:8px;font-size:18px;background:#2c241c;color:#efe3cc;border:2px solid #5f4d38;border-bottom-width:4px;text-align:left;padding:6px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+#depot .opt:active{border-bottom-width:2px;transform:translateY(1px)}
+#depot .opt:disabled{opacity:0.4;transform:none}
+#depot .opt .od{font-size:14px;color:#a8957a;font-family:'VT323',monospace}
+#depot .leave{width:100%;min-height:40px;font-size:16px;background:none;color:#a8957a;border:2px solid #4a3a2c;margin-top:4px}
+#travelstatus{font-size:16px;color:#a8957a;text-align:center;line-height:1.5}
+#travelstatus b{color:#cdb894;font-weight:400}
+button{font-family:'VT323',monospace;cursor:pointer;border:none}
+#actionbar{flex:0 0 auto;padding:6px 10px 8px}
+#go{width:100%;min-height:50px;font-size:22px;background:#e0a33a;color:#2a1c08;border:3px solid #8a5a1a;border-bottom-width:5px;letter-spacing:1px;text-transform:uppercase}
+#go:active{border-bottom-width:3px;transform:translateY(2px)}
+#go:disabled{background:#5a4632;color:#8a7a64;border-color:#3a2e22;transform:none}
+#go.docked{background:#3a2e22;color:#e0a33a;border-color:#5f4d38}
+#tabs{flex:0 0 auto;display:flex;border-top:3px solid #2a221b;background:#0e0b08}
+.tab{flex:1;min-height:50px;font-size:17px;background:#15110d;color:#8a7a64;border:none;border-right:1px solid #2a221b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;letter-spacing:1px}
+.tab:last-child{border-right:none}
+.tab .ti{font-size:13px;opacity:0.7}
+.tab.active{background:#241c14;color:#e0a33a}
+.tab.active .ti{opacity:1}
+.tab.alert{color:#e07b2a}
+#cars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#crewlist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.crewsum{grid-column:1/-1;background:#1c1812;border:2px solid #4a3a2c;border-left:4px solid #e6cf86;padding:10px 12px}
+.cshd{font-size:18px;color:#efe3cc;display:flex;align-items:center}
+.cseff{font-size:15px;color:#e6cf86;margin-top:4px}
+.csnote{font-size:13px;color:#8a7a64;margin-top:5px}
+.benchhd{grid-column:1/-1;font-size:14px;color:#d8c038;letter-spacing:.5px;text-transform:uppercase;margin:2px 0 -2px;display:flex;align-items:center}
+.herochip{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px;background:#241d12;border:2px solid #6a5a22;border-left:4px solid #d8c038;color:#efe3cc;padding:9px 12px;text-align:left;cursor:pointer;font:inherit}
+.herochip .hn{font-size:16px;color:#f0d878;font-weight:600}
+.herochip .hb{font-size:13px;color:#b9a874}
+.herochip.sel{background:#3a2f12;border-color:#ffe06a;box-shadow:0 0 0 2px rgba(255,210,62,.35) inset}
+.herochip.war{border-left-color:#b03028}
+.herochip.war .hn{color:#f0a878}
+.herochip.rare{border-color:#b8901e;border-left-color:#ffd23e;background:#322611}
+.herochip.rare .hn{color:#ffe06a}
+.herochip.rare.sel{border-color:#ffe06a;box-shadow:0 0 0 2px rgba(255,210,62,.5) inset}
+.card.herocar{border-color:#6a5a22;border-left:4px solid #d8c038}
+.card.rarecar{border-color:#b8901e;border-left:4px solid #ffd23e}
+.up.alt{background:#2c2412;border-color:#6a5a22;color:#e6cf86}
+.up.alt:hover{background:#3a2f16}
+.card{background:#241c14;border:2px solid #4a3a2c;padding:10px;position:relative}
+.card::before,.card::after{content:"";position:absolute;width:4px;height:4px;background:#5f4d38;top:4px}
+.card::before{left:4px}.card::after{right:4px}
+.card.empty{background:#1a1410;border-style:dashed;border-color:#3a2e22}
+.hd{display:flex;justify-content:space-between;align-items:baseline}
+.hd .nm{font-size:19px;color:#efe3cc}
+.hd .lv{font-family:'Press Start 2P',monospace;font-size:8px;color:#e0a33a}
+.sub{font-size:16px;color:#a8957a;margin-top:3px;min-height:18px}
+.up{width:100%;min-height:40px;margin-top:8px;font-size:17px;background:#3a2e22;color:#efe3cc;border:2px solid #5f4d38;border-bottom-width:4px}
+.up:active{border-bottom-width:2px;transform:translateY(1px)}
+.up:disabled{opacity:0.4;transform:none}
+.wsel{display:flex;gap:5px;margin-top:7px}
+.wcyc{flex:1;min-height:32px;font-size:13px;background:#2a2620;color:#cdb894;border:2px solid #4a3a2c;border-bottom-width:3px;padding:2px 4px;line-height:1.1}
+.wcyc:active{border-bottom-width:2px;transform:translateY(1px)}
+#app.land .wcyc{font-size:12px}
+.up.build{background:#2c3a26;border-color:#4a5f3c}
+#slotbtn{grid-column:span 2;min-height:50px;font-size:19px;background:#241c14;color:#e0a33a;border:2px dashed #8a5a1a}
+#slotbtn:disabled{opacity:0.4}
+.trainfoot{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+#savemsg{font-size:16px;color:#6e5f4c}
+#reset{font-size:16px;background:none;color:#a85a4a;border:2px solid #5a3228;padding:8px 12px;min-height:40px}
+.pip{display:inline-block;width:8px;height:8px;margin-right:4px}
+#maplist .stop{display:flex;align-items:center;gap:10px;padding:10px;background:#1d1814;border:2px solid #3a2e22;margin-bottom:7px}
+#maplist .stop.next{border-color:#8a5a1a;background:#241c14}
+#maplist .dot{width:10px;height:10px;border-radius:50%;background:#5f4d38;flex:0 0 auto}
+#maplist .stop.next .dot{background:#e0a33a}
+#maplist .nm{flex:1;font-size:19px;color:#cdb894}
+#maplist .km{font-size:16px;color:#8a7a64}
+#maplist .here{font-size:16px;color:#a8957a;text-align:center;margin-bottom:10px}
+#loglist .ln{font-size:17px;color:#a8957a;padding:5px 2px;border-bottom:1px solid #241c14;line-height:1.3}
+#loglist .ln:first-child{color:#cdb894}
+/* ===================== LANDSCAPE / DESKTOP SKIN ===================== */
+#dispmenu{position:absolute;z-index:50;display:flex;flex-direction:column;gap:6px}
+#dm,#dmpop button{font-family:'VT323',monospace;font-size:13px;padding:6px 10px;background:#3a2e22;color:#e0a33a;border:2px solid #8a5a1a;letter-spacing:1px;white-space:nowrap;line-height:1;cursor:pointer}
+#dm{align-self:flex-end}
+#dmpop{display:none;flex-direction:column;gap:6px}
+#dispmenu.open #dmpop{display:flex}
+#dmpop button{width:100%;min-width:104px;text-align:center}
+#app:not(.land) #dispmenu{top:9px;right:10px;align-items:flex-end}
+#app:not(.land) #topbar{padding-right:48px}
+#app.land{max-width:none;display:block;position:relative;overflow:hidden}
+#app.land .frame{position:absolute;inset:0;border:0;padding:0;z-index:0}
+#app.land .cvwrap{width:100%;height:100%}
+#app.land canvas{width:100%;height:100%;border:0;object-fit:contain;background:#0e0b08}
+#app.land #region{display:none}
+#app.land #topbar{position:absolute;top:0;left:0;right:0;z-index:5;padding:8px 12px;background:linear-gradient(rgba(8,6,4,0.6),rgba(8,6,4,0));pointer-events:none}
+#app.land #topbar .brand{display:none}
+#app.land .statbar{display:flex;gap:6px;width:100%}
+#app.land .statbar .st{background:rgba(18,14,10,0.72);min-width:60px;pointer-events:auto;padding:3px 2px}
+#app.land .statbar .st:nth-child(2){margin-right:auto}
+#app.land #dispmenu{left:14px;bottom:54px;top:auto;right:auto;align-items:flex-start;flex-direction:column-reverse}
+#app.land #dm{align-self:flex-start}
+/* ----- immersive mode: strip all chrome, keep the display menu to get back out ----- */
+#app.immersive #topbar,#app.immersive #ticker,#app.immersive #content,#app.immersive #actionbar,#app.immersive #tabs,#app.immersive #region{display:none}
+#app.immersive:not(.land){justify-content:center}
+#app.immersive #dispmenu{top:10px;right:10px;left:auto;bottom:auto;align-items:flex-end;flex-direction:column}
+#app.immersive #dm{opacity:0.5;background:rgba(20,16,12,0.66);align-self:flex-end}
+#app.immersive #dm:active{opacity:1}
+/* top-center route header (travel info + biome, all in one place) */
+#app.land #content{position:absolute;top:8px;left:50%;right:auto;transform:translateX(-50%);bottom:auto;width:auto;max-width:54%;z-index:6;max-height:none;overflow:visible;padding:3px 16px 4px;text-align:center;background:rgba(8,6,4,0.46);border:0;border-radius:0 0 6px 6px}
+#app.land #nextdepot{margin:0;font-size:17px;color:#cdb894}
+#app.land #travelstatus{font-size:14px;color:#9fd8d8;letter-spacing:1px}
+#app.land #ticker{position:absolute;top:62px;bottom:auto;left:50%;transform:translateX(-50%);z-index:5;max-width:58%;background:rgba(8,6,4,0.5);border:0;border-radius:4px;padding:3px 14px;min-height:0;justify-content:center;text-align:center;font-size:14px}
+/* heavy views / depot: slide-up tray from the bottom (overrides the top header) */
+#app.land.vopen #content{top:auto;left:0;right:0;transform:none;bottom:48px;width:auto;max-width:none;max-height:62%;overflow-y:auto;background:rgba(12,9,6,0.96);border:0;border-top:3px solid #2a221b;border-radius:0;padding:12px 16px;text-align:left}
+#app.land.vopen #ticker{opacity:0}
+#app.land #cars{grid-template-columns:repeat(4,minmax(0,1fr))}
+#app.land #crewlist{grid-template-columns:repeat(3,minmax(0,1fr))}
+#app.land #slotbtn{grid-column:span 4}
+#app.land #actionbar{position:absolute;right:14px;bottom:54px;z-index:8;padding:0;width:auto}
+#app.land #go{width:auto;min-width:128px;padding:0 16px;min-height:42px;font-size:18px}
+#app.land #tabs{position:absolute;left:0;right:0;bottom:0;z-index:7;border-top:3px solid #2a221b;background:rgba(8,6,4,0.92)}
+#app.land .tab{min-height:46px;font-size:14px}
+@media (max-width:560px){#app.land #content{max-width:64%}#app.land #go{min-width:106px;font-size:16px}#app.land #dispmenu{bottom:52px}}
+/* ----- Phase 2: filmstrip management tray (landscape) ----- */
+#app.land #cars{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding-bottom:6px;scrollbar-width:thin;scrollbar-color:#6b4a2e #1a1410}
+#app.land #cars .card{flex:0 0 134px;width:134px}
+#app.land #slotbtn{flex:0 0 134px;width:134px;grid-column:auto;min-height:auto}
+#app.land #maplist{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin;scrollbar-color:#6b4a2e #1a1410}
+#app.land #maplist .stop{flex:0 0 auto;flex-direction:column;align-items:center;min-width:118px;text-align:center;gap:5px}
+#app.land #maplist .here{flex:0 0 auto;align-self:center;text-align:left;margin:0 6px 0 0;color:#cdb894}
+#app.land #maplist .nm{flex:none}
+#app.land #loglist{column-count:2;column-gap:18px}
+#app.land #cars::-webkit-scrollbar,#app.land #maplist::-webkit-scrollbar{height:8px}
+#app.land #cars::-webkit-scrollbar-thumb,#app.land #maplist::-webkit-scrollbar-thumb{background:#6b4a2e;border:1px solid #8a5a1a}
+#app.land #cars::-webkit-scrollbar-track,#app.land #maplist::-webkit-scrollbar-track{background:#1a1410}
+/* ===== desktop windowed (portrait skin on a big screen): bigger scene, vertically centered, framed — kills the dead gap ===== */
+@media (min-width:760px){
+  body{align-items:center;background:radial-gradient(135% 130% at 50% 36%,#1c150e 0%,#0b0806 72%)}
+  #app:not(.land){max-width:min(94vw,860px);height:auto;max-height:100dvh;border:1px solid #2a221b;box-shadow:0 14px 50px rgba(0,0,0,0.55)}
+}
+@media (min-width:760px) and (max-height:780px){
+  #app:not(.land){max-width:min(94vw,680px)}
+}</style>
+</head>
+<body>
+<div id="app">
+<div id="topbar">
+<div class="brand">IRONLINE</div>
+<div class="statbar">
+<div class="st"><b id="s-scrap">120</b><span>scrap</span></div>
+<div class="st"><b id="s-food">20</b><span>food</span></div>
+<div class="st"><b id="s-fuel">30</b><span>fuel</span></div>
+<div class="st" id="hullbox"><b id="s-hull">90/90</b><span>hull</span></div>
+</div>
+</div>
+<div id="dispmenu">
+<button id="dm" title="Display options">⚙</button>
+<div id="dmpop">
+<button id="lt" title="Toggle mobile / desktop layout">⛶ Desktop</button>
+<button id="fs" title="Toggle fullscreen">⛶ Full</button>
+<button id="im" title="Immersive mode (hide all UI)">◹ Immerse</button>
+</div>
+</div>
+<div class="frame"><div class="cvwrap"><canvas id="cv" width="640" height="360" aria-label="Side view of your armored battle train rolling through a ruined desert wasteland on a multi-lane rail ocean"></canvas><div id="region"></div></div></div>
+<div id="ticker">The wastes are quiet. Upgrade your rig, then depart.</div>
+<div id="content">
+<div class="view" id="v-travel">
+<div id="nextdepot"></div>
+<div id="depot"></div>
+<div id="travelstatus"></div>
+</div>
+<div class="view" id="v-train" hidden>
+<div id="cars"></div>
+<div class="trainfoot"><span id="savemsg"></span><button id="reset">Scuttle &amp; restart</button></div>
+</div>
+<div class="view" id="v-crew" hidden><div id="crewlist"></div></div>
+<div class="view" id="v-map" hidden><div id="maplist"></div></div>
+<div class="view" id="v-log" hidden><div id="loglist"></div></div>
+</div>
+<div id="actionbar"><button id="go">Depart · 5 food</button></div>
+<nav id="tabs">
+<button class="tab active" data-v="travel"><span class="ti">▸</span>Travel</button>
+<button class="tab" data-v="train"><span class="ti">⚙</span>Train</button>
+<button class="tab" data-v="crew"><span class="ti">❖</span>Crew</button>
+<button class="tab" data-v="map"><span class="ti">◈</span>Map</button>
+<button class="tab" data-v="log"><span class="ti">≣</span>Log</button>
+</nav>
+</div>
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const appEl=document.getElementById('app');
+const RS=2;
+ctx.imageSmoothingEnabled=false;
+// ---- HERO SPRITE REGISTRY (imported via ironline-import.py: reference asset -> game sprite) ----
+const SPRITES={};
+function loadSprite(name,w,h,data){const img=new Image();SPRITES[name]={w,h,img,ready:false};img.onload=()=>{SPRITES[name].ready=true};img.src=data;}
+function spriteReady(name){const s=SPRITES[name];return !!(s&&s.ready);}
+// blit a hero sprite at logical (x,y) where y is the BASELINE its bottom rests on (the rail)
+function blitSprite(name,x,y,scale,flip){const s=SPRITES[name];if(!s||!s.ready)return false;const sc=scale||1;if(flip){ctx.save();ctx.translate(Math.round(x+s.w*sc),Math.round(y-s.h*sc));ctx.scale(-1,1);ctx.drawImage(s.img,0,0,Math.round(s.w*sc),Math.round(s.h*sc));ctx.restore();}else{ctx.drawImage(s.img,Math.round(x),Math.round(y-s.h*sc),Math.round(s.w*sc),Math.round(s.h*sc));}return true;}
+loadSprite('fortress',100,50,'data:image/png;base64,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');
+const KEY='battle-train-save';
+const S={scrap:120,food:20,fuel:30,heroes:[],crewSel:-1,journeys:0,engine:1,caboose:1,maxSlots:3,
+slots:[{type:'gun',wpn:'cannon',port:'auto',lvl:1},{type:'farm',lvl:1},null],
+mode:'idle',jt:0,dur:14,waves:[],wi:0,hull:0,off:0,flash:0,raiders:[],smoke:[],booms:[],tracers:[],smT:0,saveT:0,resetArm:0,T:0,dt:0.016,ex:216,stackX:286,pan:0,maxPan:0,panHintT:0,tw:{x:360,r:0},turr:{},boss:null,crate:null,crateAt:-1,lastRegion:-1,lastWx:-1,ptrain:null,ptrainAt:-1,ptrainKind:'trader',ptrainElite:false,dist:0,depot:null,discount:false,view:'travel',logHist:[],layout:'',layoutManual:false,immersive:false,engineSkin:null,fortressUnlocked:false};
+const gun=()=>S.slots.reduce((a,s)=>a+(s&&s.type=='gun'?s.lvl*wpow(s.wpn||'cannon',s.port||'auto'):0),0)*crewBuffs().gunMult;
+const troops=()=>S.slots.reduce((a,s)=>a+(s&&s.type=='troop'?s.lvl*4:0),0);
+const farm=()=>S.slots.reduce((a,s)=>a+(s&&s.type=='farm'?s.lvl*0.5:0),0)*crewBuffs().foodMult;
+const repairRate=()=>S.slots.reduce((a,s)=>a+(s&&s.type=='repair'?s.lvl*3:0),0);
+const maxHull=()=>60+S.engine*30;
+const loot=()=>1+S.caboose*0.1;
+S.hull=maxHull();
+const upC=l=>Math.round(30*Math.pow(1.7,l));
+const enC=()=>Math.round(60*Math.pow(1.8,S.engine));
+const cbC=()=>Math.round(45*Math.pow(1.7,S.caboose));
+const slC=()=>Math.round(150*Math.pow(2.2,S.maxSlots-3));
+const FORT_COST=500;            // one-time scrap to unlock the Fortress hero engine
+const fdC=()=>Math.max(5,troops()*2);
+const base=()=>Math.round((50+S.journeys*30+S.maxSlots*10)*loot());
+const log=t=>{S.logHist.unshift(t);if(S.logHist.length>16)S.logHist.pop();const tk=document.getElementById('ticker');if(tk)tk.textContent=t;if(S.view=='log')renderLog()};
+const NM={gun:'Gun car',farm:'Farm car',troop:'Troop car',repair:'Repair bay',oil:'Oil car'};
+const PIP={gun:'#9aa0a6',farm:'#9fc25f',troop:'#cfe3e6',repair:'#e2655a',oil:'#caa15a'};
+const WN={cannon:'Cannon car',rocket:'Rocket car',mortar:'Mortar car'};
+const WP={cannon:'#9aa0a6',rocket:'#e07b2a',mortar:'#c2a35a'};
+const WPOW=w=>w=='rocket'?7:w=='mortar'?6:5;
+// ---- modular weapon catalog: TOP turret + hull PORT, each tagged with a damage type (for future enemy weaknesses) ----
+const TOPW={cannon:{nm:'Cannon',pow:5,dt:'kinetic',c:'#9aa0a6'},rocket:{nm:'Rockets',pow:7,dt:'blast',c:'#e07b2a'},mortar:{nm:'Mortar',pow:6,dt:'blast',c:'#c2a35a'}};
+const PORTW={auto:{nm:'Autocannon',pow:4,dt:'kinetic',c:'#cdb894'},flak:{nm:'Flak',pow:5,dt:'blast',c:'#e0a33a'},flame:{nm:'Flamer',pow:6,dt:'fire',c:'#ff7a2a'}};
+const TOPKEYS=Object.keys(TOPW),PORTKEYS=Object.keys(PORTW);
+const wpow=(top,port)=>(TOPW[top]?TOPW[top].pow:5)+(PORTW[port]?PORTW[port].pow:0);
+const nextTop=w=>TOPKEYS[(TOPKEYS.indexOf(w)+1)%TOPKEYS.length];
+const nextPort=p=>PORTKEYS[(PORTKEYS.indexOf(p)+1)%PORTKEYS.length];
+const REFIT=30;
+// ================= CREW + FUEL/FOOD ECONOMY =================
+const CREW={
+ captain :{nm:'Gun-Captain',role:'gun',   buff:r=>'+'+(r*10)+'% gun damage'},
+ sergeant:{nm:'Sergeant',   role:'troop', buff:r=>'\u2212'+(r*5)+'% hull damage'},
+ farmhand:{nm:'Farmhand',   role:'farm',  buff:r=>'+'+(r*12)+'% food'},
+ mechanic:{nm:'Mechanic',   role:'repair',buff:r=>'+'+r+' hull/s always'},
+ stoker  :{nm:'Stoker',     role:'oil',   buff:r=>'\u2212'+(r*6)+'% fuel burn'},
+ // ---- WANDERERS (friendly: depot recruiter + passing traders) ----
+ cook    :{nm:'Cook',     hero:true, grp:'wander', buff:r=>'+'+(r*18)+'% food'},
+ medic   :{nm:'Medic',    hero:true, grp:'wander', buff:r=>'hull floor '+(20+r*10)+'%'},
+ greaser :{nm:'Greaser',  hero:true, grp:'wander', buff:r=>'\u2212'+(r*7)+'% fuel burn'},
+ tinker  :{nm:'Tinker',   hero:true, grp:'wander', buff:r=>'+'+r+' hull/s always'},
+ // ---- SPOILS OF WAR (boss drops; Warboss is rare) ----
+ warboss   :{nm:'Raider Warboss',hero:true, grp:'war', rare:true, buff:r=>'+'+(r*10)+'% gun &amp; +'+(r*8)+'% scrap'},
+ bombardier:{nm:'Bombardier',    hero:true, grp:'war', buff:r=>'+'+(r*9)+'% gun damage'},
+ ironside  :{nm:'Ironside',       hero:true, grp:'war', buff:r=>'\u2212'+(r*6)+'% hull damage'},
+ reaver    :{nm:'Reaver',         hero:true, grp:'war', buff:r=>'+'+(r*15)+'% scrap'},
+ scavenger :{nm:'Scavenger', hero:true, grp:'wander', buff:r=>'+'+(r*15)+'% scrap'} // legacy save compat
+};
+const WANDER_HEROES=['cook','medic','greaser','tinker'];
+const WAR_HEROES=['bombardier','ironside','reaver']; // + warboss (rare), rolled separately
+const ROLECREW={gun:'captain',troop:'sergeant',farm:'farmhand',repair:'mechanic',oil:'stoker'};
+const RNK=['','I','II','III'];
+const MAXRANK=3;
+function crewOf(s){if(!s)return null;if(!s.crew)s.crew={kind:ROLECREW[s.type]||'captain',rank:1};return s.crew}
+function activeCrew(s){return s&&s.hero?s.hero:crewOf(s)}  // an assigned hero takes the post over the role crew
+function crewBuffs(){
+ const b={gunMult:1,foodMult:1,fuelMult:1,scrapMult:1,hullRegen:0,hullDmgMult:1,hullFloor:0};
+ for(const s of S.slots){if(!s)continue;const c=activeCrew(s),r=c.rank;
+  if(c.kind=='captain')b.gunMult+=r*0.10;
+  else if(c.kind=='sergeant')b.hullDmgMult-=r*0.05;
+  else if(c.kind=='farmhand')b.foodMult+=r*0.12;
+  else if(c.kind=='mechanic')b.hullRegen+=r;
+  else if(c.kind=='stoker')b.fuelMult-=r*0.06;
+  else if(c.kind=='cook')b.foodMult+=r*0.18;
+  else if(c.kind=='medic')b.hullFloor=Math.max(b.hullFloor,0.20+r*0.10);
+  else if(c.kind=='greaser')b.fuelMult-=r*0.07;
+  else if(c.kind=='tinker')b.hullRegen+=r;
+  else if(c.kind=='warboss'){b.gunMult+=r*0.10;b.scrapMult+=r*0.08;}
+  else if(c.kind=='bombardier')b.gunMult+=r*0.09;
+  else if(c.kind=='ironside')b.hullDmgMult-=r*0.06;
+  else if(c.kind=='reaver')b.scrapMult+=r*0.15;
+  else if(c.kind=='scavenger')b.scrapMult+=r*0.15;
+ }
+ b.hullDmgMult=Math.max(0.4,b.hullDmgMult);b.fuelMult=Math.max(0.4,b.fuelMult);
+ return b;
+}
+const crewCount=()=>S.slots.reduce((a,s)=>a+(s?1:0),0);
+const crewRankCost=r=>Math.round(50*Math.pow(2.1,r));      // scrap to train a crew rank r\u2192r+1
+function hurt(raw){const cb=crewBuffs();const d=raw*cb.hullDmgMult;S.hull-=d;const fl=maxHull()*cb.hullFloor;if(fl>0&&S.hull<fl)S.hull=fl;return Math.round(d)}
+// ---- HEROES: special crew recruited from victories, kept on a bench, assignable to any car ----
+// ---- HEROES: two rosters — Spoils of War (boss) & Wanderers (friendly) ----
+function ownedHero(kind){for(const h of S.heroes)if(h.kind==kind)return h;for(const s of S.slots)if(s&&s.hero&&s.hero.kind==kind)return s.hero;return null}
+function pickHero(group){
+ if(group=='war'){if(Math.random()<0.14)return 'warboss';return WAR_HEROES[Math.floor(Math.random()*WAR_HEROES.length)];}
+ return WANDER_HEROES[Math.floor(Math.random()*WANDER_HEROES.length)];
+}
+function recruitHero(group){
+ const kind=pickHero(group||'wander'),d=CREW[kind],owned=ownedHero(kind),rare=!!d.rare;
+ if(owned&&owned.rank<MAXRANK){owned.rank++;log((rare?'\u2605 ':'')+'A seasoned '+d.nm+' joins you — your '+d.nm+' reaches rank '+RNK[owned.rank]+'.');return kind}
+ if(owned){const b=Math.round(45+S.journeys*10);S.scrap+=b;log('Your '+d.nm+' is already a legend — the newcomers leave '+b+' scrap in tribute.');return null}
+ S.heroes.push({kind,rank:1});
+ if(rare)log('\u2605 A RAIDER WARBOSS is broken and turned to your banner \u2014 a rare prize! Assign them in the Crew bay.');
+ else log('A '+d.nm+(group=='war'?' is hauled from the wreckage':' signs on at the stop')+' \u2014 assign them in the Crew bay.');
+ return kind;
+}
+// fuel = movement gate (oil cars); food = growth gate + crew rations (farms)
+const oilProd=()=>S.slots.reduce((a,s)=>a+(s&&s.type=='oil'?s.lvl*0.4:0),0);
+const fuelC=()=>Math.max(3,Math.round((6+crewCount()*1.5)*crewBuffs().fuelMult));   // fuel per departure
+const rations=()=>Math.max(2,Math.round(crewCount()*1.4));                          // food crew eat per departure
+const NEWCAR=40;                                                                     // scrap to weld a new car
+const carFoodC=()=>10+crewCount()*6;                                                // food to weld a new car
+let canSave=typeof window.storage!=='undefined';
+function setSaveMsg(t){document.getElementById('savemsg').textContent=t}
+let saveTimer=null;
+async function save(){
+if(!canSave){setSaveMsg('Saving unavailable here');return}
+try{
+const d={scrap:Math.floor(S.scrap),food:Math.floor(S.food),fuel:Math.floor(S.fuel),heroes:S.heroes,journeys:S.journeys,engine:S.engine,caboose:S.caboose,maxSlots:S.maxSlots,slots:S.slots,hull:Math.round(S.hull),dist:Math.round(S.dist),discount:S.discount,layout:S.layout,layoutManual:S.layoutManual,engineSkin:S.engineSkin,fortressUnlocked:S.fortressUnlocked};
+const r=await window.storage.set(KEY,JSON.stringify(d));
+if(r){setSaveMsg('Progress saved');clearTimeout(saveTimer);saveTimer=setTimeout(()=>setSaveMsg(''),2500)}
+}catch(e){canSave=false;setSaveMsg('Saving unavailable here')}
+}
+async function load(){
+if(!canSave)return false;
+try{
+const r=await window.storage.get(KEY);
+if(r&&r.value){
+const d=JSON.parse(r.value);
+S.scrap=d.scrap;S.food=d.food;S.fuel=(d.fuel!=null?d.fuel:30);S.heroes=Array.isArray(d.heroes)?d.heroes:[];S.crewSel=-1;S.journeys=d.journeys;S.engine=d.engine;S.caboose=d.caboose;S.maxSlots=d.maxSlots;S.slots=d.slots;S.slots.forEach(s=>{if(s&&s.type=='gun'){if(!s.wpn)s.wpn='cannon';if(!s.port)s.port='auto'}crewOf(s)});S.hull=Math.min(d.hull,maxHull());S.dist=d.dist||0;S.discount=!!d.discount;S.layout=d.layout||'';S.layoutManual=!!d.layoutManual;S.engineSkin=d.engineSkin||null;S.fortressUnlocked=!!d.fortressUnlocked;
+return true}
+}catch(e){}
+return false;
+}
+function statLine(s){if(s.type=='gun')return TOPW[s.wpn||'cannon'].nm+' + '+PORTW[s.port||'auto'].nm+' · pow '+Math.round(s.lvl*wpow(s.wpn||'cannon',s.port||'auto'));if(s.type=='farm')return '+'+(s.lvl*0.5).toFixed(1)+' food/s';if(s.type=='oil')return '+'+(s.lvl*0.4).toFixed(1)+' fuel/s';if(s.type=='repair')return '+'+(s.lvl*3)+' hull/s in combat';return s.lvl*4+' troops · escort'}
+function pip(c){return '<span class="pip" style="background:'+c+'"></span>'}
+function tierMk(l){const t=vtier(l);return '<span style="color:#e0a33a;letter-spacing:1px">'+('★'.repeat(t+1))+'</span>'}
+function renderCrew(){
+const cb=crewBuffs(),eff=[];
+if(cb.gunMult>1)eff.push('+'+Math.round((cb.gunMult-1)*100)+'% gun');
+if(cb.foodMult>1)eff.push('+'+Math.round((cb.foodMult-1)*100)+'% food');
+if(cb.fuelMult<1)eff.push('\u2212'+Math.round((1-cb.fuelMult)*100)+'% fuel burn');
+if(cb.hullRegen>0)eff.push('+'+cb.hullRegen+' hull/s');
+if(cb.hullDmgMult<1)eff.push('\u2212'+Math.round((1-cb.hullDmgMult)*100)+'% dmg taken');
+if(cb.scrapMult>1)eff.push('+'+Math.round((cb.scrapMult-1)*100)+'% scrap');
+if(cb.hullFloor>0)eff.push('hull floor '+Math.round(cb.hullFloor*100)+'%');
+let h='<div class="crewsum"><div class="cshd">'+pip('#e6cf86')+'Crew of '+crewCount()+'</div><div class="cseff">'+(eff.length?eff.join(' &middot; '):'Train your crew to buff the whole rig')+'</div><div class="csnote">\u2694 warlords drop war heroes &middot; \u263c depots &amp; traders bring wanderers</div></div>';
+const sel=(S.crewSel>=0&&S.crewSel<S.heroes.length)?S.heroes[S.crewSel]:null;
+if(S.heroes.length){
+ h+='<div class="benchhd">'+pip('#d8c038')+'Heroes &middot; '+(sel?'now tap a car to place':'tap one, then a car')+'</div>';
+ S.heroes.forEach((hr,k)=>{const d=CREW[hr.kind],grp=d.grp||'wander',rare=!!d.rare;
+  h+='<button class="herochip '+grp+(rare?' rare':'')+(S.crewSel===k?' sel':'')+'" data-act="heroSel" data-k="'+k+'"><span class="hn">'+(rare?'\u2605 ':'')+d.nm+' '+RNK[hr.rank]+'</span><span class="hb">'+d.buff(hr.rank)+'</span></button>';});
+}
+let any=false;
+S.slots.forEach((s,i)=>{if(!s)return;any=true;
+ const c=activeCrew(s),d=CREW[c.kind],isHero=!!s.hero,rare=isHero&&!!d.rare,cost=crewRankCost(c.rank),maxed=c.rank>=MAXRANK;
+ h+='<div class="card'+(isHero?' herocar':'')+(rare?' rarecar':'')+'"><div class="hd"><span class="nm">'+pip(isHero?(rare?'#ffd23e':'#d8c038'):'#e6cf86')+(rare?'\u2605 ':'')+d.nm+'</span><span class="lv">'+RNK[c.rank]+' '+'\u2605'.repeat(c.rank)+'</span></div>'+
+ '<div class="sub">'+NM[s.type]+(isHero?' &middot; <i>'+(d.grp=='war'?'war hero':'wanderer')+' aboard</i>':'')+' &middot; <b style="color:#e6cf86">'+d.buff(c.rank)+'</b></div>'+
+ (maxed?'<button class="up" disabled>Elite \u2014 fully trained</button>':'<button class="up" data-act="crew" data-i="'+i+'" '+(S.scrap<cost?'disabled':'')+'>Train to '+RNK[c.rank+1]+' &middot; '+cost+' scrap</button>');
+ if(sel)h+='<button class="up alt" data-act="heroPlace" data-i="'+i+'">Place '+CREW[sel.kind].nm+' here'+(isHero?' (swap)':'')+'</button>';
+ else if(isHero)h+='<button class="up alt" data-act="heroReturn" data-i="'+i+'">Return '+d.nm+' to bench</button>';
+ h+='</div>';});
+if(!any)h+='<div class="card empty"><div class="sub">No cars crewed yet. Weld a car in the Train bay and a crew takes their post.</div></div>';
+document.getElementById('crewlist').innerHTML=h;
+}
+function cards(){
+let fu;
+if(!S.fortressUnlocked)fu='<button class="up" data-act="fortress" '+(S.scrap<FORT_COST?'disabled':'')+'>⛓ Fortress refit · '+FORT_COST+' scrap</button>';
+else fu='<div class="sub">⛓ Fortress hull · '+(S.engineSkin=='fortress'?'engaged':'in reserve')+'</div>'+(S.engineSkin=='fortress'?'<button class="up alt" data-act="fortressOff">Revert to standard rig</button>':'<button class="up" data-act="fortressOn">Engage Fortress engine</button>');
+let h='<div class="card"><div class="hd"><span class="nm">'+pip('#e0a33a')+'Engine</span><span class="lv">LV '+S.engine+' '+tierMk(S.engine)+'</span></div><div class="sub">Hull '+maxHull()+' · run '+Math.max(8,15-S.engine)+'s</div><button class="up" data-act="eng" '+(S.scrap<enC()?'disabled':'')+'>Upgrade · '+enC()+' scrap</button>'+fu+'</div>';
+S.slots.forEach((s,i)=>{
+if(s){h+='<div class="card"><div class="hd"><span class="nm">'+pip(s.type=='gun'?WP[s.wpn||'cannon']:PIP[s.type])+(s.type=='gun'?WN[s.wpn||'cannon']:NM[s.type])+'</span><span class="lv">LV '+s.lvl+' '+tierMk(s.lvl)+'</span></div><div class="sub">'+statLine(s)+'</div>'+(s.type=='gun'?'<div class="wsel"><button class="wcyc" data-act="cycTop" data-i="'+i+'" '+(S.scrap<REFIT?'disabled':'')+'>⟳ '+TOPW[nextTop(s.wpn||'cannon')].nm+' · '+REFIT+'</button><button class="wcyc" data-act="cycPort" data-i="'+i+'" '+(S.scrap<REFIT?'disabled':'')+'>⟳ '+PORTW[nextPort(s.port||'auto')].nm+' · '+REFIT+'</button></div>':'')+'<button class="up" data-act="up" data-i="'+i+'" '+(S.scrap<upC(s.lvl)?'disabled':'')+'>Upgrade · '+upC(s.lvl)+' scrap</button></div>'}
+else{const cant=(S.scrap<NEWCAR||S.food<carFoodC())?'disabled':'';
+h+='<div class="card empty"><div class="hd"><span class="nm">Empty slot</span></div><div class="sub">Weld a car · '+NEWCAR+' scrap · '+carFoodC()+' food</div>'+
+'<button class="up build" data-act="build" data-i="'+i+'" data-t="farm" '+cant+'>Farm</button>'+
+'<button class="up build" data-act="build" data-i="'+i+'" data-t="oil" '+cant+'>Oil · fuel</button>'+
+'<button class="up build" data-act="build" data-i="'+i+'" data-t="troop" '+cant+'>Troops</button>'+
+'<button class="up build" data-act="build" data-i="'+i+'" data-t="repair" '+cant+'>Repair bay</button>'+
+'<button class="up build" data-act="build" data-i="'+i+'" data-t="gun" data-w="cannon" '+cant+'>Cannon · fast</button>'+
+'<button class="up build" data-act="build" data-i="'+i+'" data-t="gun" data-w="rocket" '+cant+'>Rockets · hard hit</button>'+
+'<button class="up build" data-act="build" data-i="'+i+'" data-t="gun" data-w="mortar" '+cant+'>Mortar · lobbed</button></div>'}});
+h+='<div class="card"><div class="hd"><span class="nm">'+pip('#8a3a30')+'Caboose</span><span class="lv">LV '+S.caboose+' '+tierMk(S.caboose)+'</span></div><div class="sub">+'+Math.round(S.caboose*10)+'% loot</div><button class="up" data-act="cab" '+(S.scrap<cbC()?'disabled':'')+'>Upgrade · '+cbC()+' scrap</button></div>';
+if(S.maxSlots<8)h+='<button id="slotbtn" data-act="slot" '+(S.scrap<slC()?'disabled':'')+'>+ Couple a new car slot · '+slC()+' scrap</button>';
+document.getElementById('cars').innerHTML=h;
+}
+document.getElementById('cars').addEventListener('click',e=>{
+const b=e.target.closest('button');if(!b||b.disabled)return;
+const act=b.dataset.act,dc=n=>S.discount?Math.ceil(n/2):n;
+if(act=='eng'){S.scrap-=dc(enC());S.engine++;S.hull=maxHull();log('Engine refit. Thicker plate, hotter boiler.')}
+else if(act=='fortress'){if(S.scrap<dc(FORT_COST))return;S.scrap-=dc(FORT_COST);S.fortressUnlocked=true;S.engineSkin='fortress';log('Fortress hull bolted on — the engine becomes a rolling keep.')}
+else if(act=='fortressOn'){S.engineSkin='fortress';log('Fortress engine engaged.')}
+else if(act=='fortressOff'){S.engineSkin=null;log('Reverted to the standard war-rig engine.')}
+else if(act=='cab'){S.scrap-=dc(cbC());S.caboose++;log('Caboose crew expands the salvage rigging.')}
+else if(act=='up'){const s=S.slots[+b.dataset.i];S.scrap-=dc(upC(s.lvl));s.lvl++;log(NM[s.type]+' upgraded to level '+s.lvl+'.')}
+else if(act=='build'){S.scrap-=dc(NEWCAR);S.food=Math.max(0,S.food-carFoodC());const t=b.dataset.t;const ns=t=='gun'?{type:'gun',wpn:b.dataset.w,port:'auto',lvl:1}:{type:t,lvl:1};crewOf(ns);S.slots[+b.dataset.i]=ns;log((t=='gun'?WN[b.dataset.w]:NM[t])+' welded onto the line — '+CREW[crewOf(ns).kind].nm+' takes their post.')}
+else if(act=='crew'){const s=S.slots[+b.dataset.i],c=crewOf(s);if(c.rank>=MAXRANK)return;const cost=crewRankCost(c.rank);if(S.scrap<cost)return;S.scrap-=cost;c.rank++;log(CREW[c.kind].nm+' trained to rank '+RNK[c.rank]+' — '+CREW[c.kind].buff(c.rank)+'.')}
+else if(act=='cycTop'){const s=S.slots[+b.dataset.i];if(S.scrap<dc(REFIT))return;S.scrap-=dc(REFIT);s.wpn=nextTop(s.wpn||'cannon');log('Turret refit → '+TOPW[s.wpn].nm+' · '+TOPW[s.wpn].dt+' rounds.')}
+else if(act=='cycPort'){const s=S.slots[+b.dataset.i];if(S.scrap<dc(REFIT))return;S.scrap-=dc(REFIT);s.port=nextPort(s.port||'auto');log('Broadside refit → '+PORTW[s.port].nm+' · '+PORTW[s.port].dt+' rounds.')}
+else if(act=='slot'){S.scrap-=dc(slC());S.maxSlots++;S.slots.push(null);log('New coupling forged. The rig grows longer.')}
+if(S.discount){S.discount=false}
+cards();save();
+});
+document.getElementById('crewlist').addEventListener('click',e=>{
+const b=e.target.closest('button');if(!b||b.disabled)return;
+const act=b.dataset.act;
+if(act=='crew'){const s=S.slots[+b.dataset.i],c=activeCrew(s);if(c.rank>=MAXRANK)return;const cost=crewRankCost(c.rank);if(S.scrap<cost)return;S.scrap-=cost;c.rank++;log(CREW[c.kind].nm+' trained to rank '+RNK[c.rank]+' — '+CREW[c.kind].buff(c.rank)+'.');}
+else if(act=='heroSel'){const k=+b.dataset.k;S.crewSel=(S.crewSel===k?-1:k);renderCrew();return;}
+else if(act=='heroPlace'){if(S.crewSel<0||S.crewSel>=S.heroes.length)return;const s=S.slots[+b.dataset.i];const hero=S.heroes.splice(S.crewSel,1)[0];if(s.hero)S.heroes.push(s.hero);s.hero=hero;S.crewSel=-1;log(CREW[hero.kind].nm+' takes the post aboard the '+NM[s.type]+' — '+CREW[hero.kind].buff(hero.rank)+'.');}
+else if(act=='heroReturn'){const s=S.slots[+b.dataset.i];if(!s.hero)return;S.heroes.push(s.hero);log(CREW[s.hero.kind].nm+' steps back to the bench; the '+CREW[crewOf(s).kind].nm+' retakes the '+NM[s.type]+'.');delete s.hero;}
+else return;
+renderCrew();cards();save();
+});
+document.getElementById('go').addEventListener('click',()=>{
+if(S.mode=='depot'){showView('travel');return}
+if(S.mode=='run'||S.fuel<fuelC())return;
+S.fuel-=fuelC();S.food=Math.max(0,S.food-rations());S.mode='run';S.jt=0;S.raiders=[];S.tracers=[];S.crate=null;
+if((S.journeys+1)%5===0){S.dur=Math.max(11,18-S.engine);S.waves=[];S.wi=0;S.boss=null;const bn=Math.floor((S.journeys+1)/5),tier=Math.min(3,bn-1),guns=tier,wp=['cannon','rocket','mortar'],cars=[{type:'engine'}];for(let g=0;g<guns;g++)cars.push({type:'gun',wpn:wp[g%3]});cars.push({type:'fuel'});const m=Math.round((55+S.journeys*22)*(1+guns*0.4));S.boss={hp:m,max:m,x:380,tx:200,hitT:1.5,dead:false,set:false,cars,tier,guns};S.crateAt=-1;log('A warlord convoy blocks the line — BOSS CROSSING ('+(guns?guns+' gun car'+(guns>1?'s':'')+' + lead gun':'lead gun only')+'). Bring everything you have.')}
+else{S.dur=Math.max(8,15-S.engine);S.waves=[0.27,0.55,0.82].map(p=>p*S.dur);S.wi=0;S.boss=null;S.ptrain=null;const elite=S.journeys>=3&&Math.random()<0.13;if(elite){S.ptrainElite=true;S.ptrainKind='raider';S.ptrainAt=S.dur*(0.15+Math.random()*0.22);S.crateAt=-1;log('Departing. The horizon is too quiet \u2014 dust rising off the parallel rail...')}else{S.ptrainElite=false;S.crateAt=(Math.random()<0.65)?S.dur*(0.3+Math.random()*0.4):-1;S.ptrainAt=(Math.random()<0.4)?S.dur*(0.2+Math.random()*0.35):-1;S.ptrainKind=(Math.random()<Math.min(0.55,0.32+S.journeys*0.02))?'raider':'trader';log('Departing. Raider dust on the horizon...')}}
+});
+document.getElementById('reset').addEventListener('click',async()=>{
+const b=document.getElementById('reset');
+if(!S.resetArm){S.resetArm=1;b.textContent='Tap again to confirm';setTimeout(()=>{S.resetArm=0;b.innerHTML='Scuttle &amp; restart'},3000);return}
+S.resetArm=0;b.innerHTML='Scuttle &amp; restart';
+S.scrap=120;S.food=20;S.fuel=30;S.heroes=[];S.crewSel=-1;S.journeys=0;S.engine=1;S.caboose=1;S.maxSlots=3;
+S.slots=[{type:'gun',wpn:'cannon',port:'auto',lvl:1},{type:'farm',lvl:1},null];S.slots.forEach(s=>crewOf(s));
+S.hull=maxHull();S.mode='idle';S.raiders=[];S.booms=[];S.tracers=[];S.boss=null;S.crate=null;S.dist=0;S.depot=null;S.discount=false;renderDepot();
+if(canSave){try{await window.storage.delete(KEY)}catch(e){}}
+log('The old rig burns behind you. A fresh engine waits on the line.');
+cards();
+});
+function raiderKind(){const j=S.journeys,roll=Math.random();
+ if(j<2)return roll<0.5?'bike':'buggy';
+ if(j<5)return roll<0.28?'bike':roll<0.74?'buggy':'technical';
+ return roll<0.2?'bike':roll<0.52?'buggy':'technical';
+}
+function raiderSpawn(x){const k=raiderKind(),sp=k=='bike'?60+Math.random()*22:k=='technical'?34+Math.random()*14:45+Math.random()*25;return{x,v:-sp,life:1.7+Math.random()*0.9,kind:k}}
+function wave(){
+const enemy=Math.round(10+S.journeys*5+Math.random()*6);
+const mit=gun()+troops()*1.5;
+const dmg=Math.max(0,Math.round(enemy-mit));
+const n=2+Math.min(2,Math.floor(S.journeys/3));
+for(let i=0;i<n;i++)S.raiders.push(raiderSpawn(340+i*26));
+S.flash=1.4;
+if(dmg<=0)log('Wave repelled — '+enemy+' raider strength shredded by your guns.');
+else{const tk=hurt(dmg);log('Raiders breached the firing line — hull takes '+tk+'!')}
+if(S.hull<=0){const r=Math.round(base()*0.25);S.scrap+=r;S.hull=Math.round(maxHull()*0.4);S.mode='idle';S.raiders=[];S.ptrain=null;log('Hull failure! You limp back with only '+r+' scrap. Repair and rearm.');cards();save()}
+}
+function finish(){const r=Math.round(base()*crewBuffs().scrapMult);S.scrap+=r;S.journeys++;S.mode='idle';S.ptrain=null;S.crate=null;log('Crossing complete. Salvaged '+r+' scrap from the far shore. Raiders grow stronger.');maybeDepot();cards();save()}
+function bossKill(){const r=Math.round(base()*2.2*crewBuffs().scrapMult);S.scrap+=r;S.journeys++;const cn=(S.boss.cars||[1,1]).length;for(let i=0;i<7+cn*2;i++)S.booms.push({x:S.boss.x-26+i*(BENGW+(cn-1)*BCARW)/(7+cn*2),y:138+(i%3)*7,t:0.04+i*0.04});S.boss=null;S.mode='idle';S.raiders=[];S.tracers=[];S.crate=null;log('Warlord convoy destroyed! You haul back '+r+' scrap and the wastes learn your name.');if(Math.random()<0.85)recruitHero('war');else{const b=Math.round(30+S.journeys*8);S.scrap+=b;log('No survivors worth taking \u2014 you strip the wreck for '+b+' more scrap.');}maybeDepot();cards();save()}
+function bossEscape(){const r=Math.round(base()*0.3);S.scrap+=r;S.hull=Math.round(maxHull()*0.4);S.boss=null;S.mode='idle';S.raiders=[];S.tracers=[];S.crate=null;log('The warlord overran your line \u2014 you uncouple and limp home with '+r+' scrap. The wastes still answer to them.');cards();save()}
+function grabCrate(){const c=S.crate;if(!c||c.grabbed)return;c.grabbed=true;if(Math.random()<0.65){const sc=Math.round(28+S.journeys*14),fd=4+Math.floor(Math.random()*5);S.scrap+=sc;S.food+=fd;S.booms.push({x:c.x+5,y:c.y+4,t:0.12});log('Salvage secured — +'+sc+' scrap, +'+fd+' food.')}else{const dmg=Math.round(5+S.journeys*1.5);S.hull=Math.max(Math.round(maxHull()*0.35),S.hull-dmg);S.flash=1.2;for(let i=0;i<2;i++)S.raiders.push(raiderSpawn(340+i*22));log('Ambush! The wreck was bait — hull takes '+dmg+' and raiders close in.')}S.crate=null}
+/* ---- location travel: named depots every leg, each an interactive stop ---- */
+const DEPOT_KM=20;
+const DPRE=['Rust','Ash','Salt','Bone','Iron','Dust','Gallows','Cinder','Scrap','Vulture','Mercy','Pale','Ember','Hollow','Tar'];
+const DSUF=['Halt','Junction','Yard','Crossing','Siding','Reach','Terminus','Hollow','Spur','Wells','Camp','Landing','Run','Bend'];
+const DFLAV=['Lanterns burn in the dark; the crews eye your guns.','A makeshift market clings to the dead rails.','Survivors trade scrap and rumors here.','Half-buried in dust, still clinging to life.','A fuel stop on the edge of nowhere.','Welders and scavengers work the wreck-stacks.'];
+function depotName(idx){return DPRE[Math.floor(hash(idx*3+1)*DPRE.length)]+' '+DSUF[Math.floor(hash(idx*7+2)*DSUF.length)]}
+function depotFlavor(idx){return DFLAV[Math.floor(hash(idx*5+4)*DFLAV.length)]}
+function offerObj(type,idx){
+if(type=='repair'){const c=Math.round(18+idx*6);return{label:'Repair bay',desc:'−'+c+' scrap · full hull',can:()=>S.scrap>=c&&S.hull<maxHull(),act:()=>{S.scrap-=c;S.hull=maxHull();log('Hull fully welded at the depot.')}}}
+if(type=='food'){const c=Math.round(22+idx*7),g=Math.round(16+idx*5);return{label:'Provisioner',desc:'−'+c+' scrap · +'+g+' food',can:()=>S.scrap>=c,act:()=>{S.scrap-=c;S.food+=g;log('Loaded '+g+' food from the provisioner.')}}}
+if(type=='fuel'){const c=Math.round(14+idx*5),g=Math.round(12+idx*4);return{label:'Fuel depot',desc:'−'+c+' scrap · +'+g+' fuel',can:()=>S.scrap>=c,act:()=>{S.scrap-=c;S.fuel+=g;log('Topped off '+g+' fuel at the depot.')}}}
+if(type=='recruit'){const c=Math.round(70+idx*22);return{label:'Wandering specialist',desc:'\u2212'+c+' scrap · recruit a wanderer',can:()=>S.scrap>=c,act:()=>{S.scrap-=c;recruitHero('wander')}}}
+if(type=='scrap'){const c=Math.round(12+idx*4),g=Math.round(40+idx*14);return{label:'Scrap broker',desc:'−'+c+' food · +'+g+' scrap',can:()=>S.food>=c,act:()=>{S.food-=c;S.scrap+=g;log('Sold rations for '+g+' scrap.')}}}
+if(type=='scavenge'){return{label:'Pick the wreck-stacks',desc:'free · gamble',can:()=>true,act:()=>{const r=Math.random();if(r<0.5){const g=Math.round(35+idx*13);S.scrap+=g;log('Scavenging paid off — +'+g+' scrap.')}else if(r<0.8){const g=Math.round(12+idx*5);S.food+=g;log('Found a food cache — +'+g+' food.')}else log('The stacks were already picked clean. Nothing here.')}}}
+if(type=='cache'){const g=Math.round(24+idx*10);return{label:'Supply cache',desc:'free · +'+g+' scrap',can:()=>true,act:()=>{S.scrap+=g;log('Cracked a supply cache — +'+g+' scrap.')}}}
+return{label:'Black-market fixer',desc:'free · next upgrade ½ price',can:()=>!S.discount,act:()=>{S.discount=true;log('A fixer marks down your next upgrade to half price.')}}}
+function depotOffers(idx){const pool=['repair','food','scrap','fuel','recruit','scavenge','cache','discount'],pick=[],used={};let k=0;while(pick.length<3&&k<20){const t=pool[Math.floor(hash(idx*13+k*7+9)*pool.length)];if(!used[t]){used[t]=1;pick.push(t)}k++}if(!pick.includes('scavenge')&&!pick.includes('cache'))pick[2]='scavenge';return pick.map(t=>offerObj(t,idx))}
+function maybeDepot(){const prev=S.dist;S.dist+=4+Math.floor(S.engine*0.6);if(Math.floor(S.dist/DEPOT_KM)>Math.floor(prev/DEPOT_KM))openDepot(Math.floor(S.dist/DEPOT_KM))}
+function openDepot(idx){S.depot={idx,name:depotName(idx),offers:depotOffers(idx)};S.mode='depot';log('You pull into '+S.depot.name+'. '+depotFlavor(idx));renderDepot();showView('travel')}
+function renderDepot(){const d=S.depot,el=document.getElementById('depot');if(!d){el.className='';el.innerHTML='';return}
+let h='<h3>'+d.name+'</h3><div class="flav">'+depotFlavor(d.idx)+'</div>';
+d.offers.forEach((o,k)=>{h+='<button class="opt" data-k="'+k+'" '+(o.can()?'':'disabled')+'><span>'+o.label+'</span><span class="od">'+o.desc+'</span></button>'});
+h+='<button class="leave" data-k="-1">Press on without stopping</button>';
+el.innerHTML=h;el.className='show';
+}
+document.getElementById('depot').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled||!S.depot)return;const k=+b.dataset.k;if(k>=0)S.depot.offers[k].act();S.depot=null;S.mode='idle';renderDepot();cards();save();showView('travel')});
+/* ---- view router: persistent shell + swappable content ---- */
+function showView(v){S.view=v;
+for(const id of ['travel','train','crew','map','log'])document.getElementById('v-'+id).hidden=(id!=v);
+document.querySelectorAll('#tabs .tab').forEach(t=>t.classList.toggle('active',t.dataset.v==v));
+if(v=='train')cards();if(v=='crew')renderCrew();if(v=='map')renderMap();if(v=='log')renderLog();
+}
+document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)showView(b.dataset.v)});
+function applyLayout(){const land=S.layout=='landscape';appEl.classList.toggle('land',land);document.getElementById('lt').textContent=land?'▢ Mobile':'⛶ Desktop'}
+function autoLayout(){if(S.layoutManual)return false;const want=(window.innerWidth>=820||window.innerWidth>window.innerHeight*1.3)?'landscape':'portrait';if(want!=S.layout){S.layout=want;return true}return false}
+window.addEventListener('resize',()=>{if(autoLayout())applyLayout()});
+document.getElementById('lt').addEventListener('click',()=>{S.layout=(S.layout=='landscape')?'portrait':'landscape';S.layoutManual=true;applyLayout();save()});
+function isFs(){return !!(document.fullscreenElement||document.webkitFullscreenElement)}
+function updFsBtn(){const b=document.getElementById('fs');if(b)b.textContent=isFs()?'▢ Exit':'⛶ Full'}
+function fsFail(){const b=document.getElementById('fs');if(b){b.textContent='↗ Open in tab';setTimeout(()=>{if(!isFs())updFsBtn()},3000)}log('Fullscreen is blocked inside the embedded preview. Download this file or open it in its own browser tab to go fullscreen.')}
+document.getElementById('fs').addEventListener('click',()=>{
+try{
+if(isFs()){const x=document.exitFullscreen||document.webkitExitFullscreen;if(x){const p=x.call(document);if(p&&p.catch)p.catch(()=>{})}}
+else{const el=document.documentElement,r=el.requestFullscreen||el.webkitRequestFullscreen;if(r){const p=r.call(el);if(p&&p.catch)p.catch(fsFail)}else fsFail()}
+}catch(_){fsFail()}
+});
+document.addEventListener('fullscreenchange',updFsBtn);
+document.addEventListener('webkitfullscreenchange',updFsBtn);
+function applyImmersive(){const im=S.immersive;appEl.classList.toggle('immersive',im);document.getElementById('im').textContent=im?'▢ Show UI':'◹ Immerse'}
+document.getElementById('im').addEventListener('click',()=>{S.immersive=!S.immersive;applyImmersive()});
+const dispmenu=document.getElementById('dispmenu');
+document.getElementById('dm').addEventListener('click',e=>{e.stopPropagation();dispmenu.classList.toggle('open')});
+document.getElementById('dmpop').addEventListener('click',()=>dispmenu.classList.remove('open'));
+document.addEventListener('click',e=>{if(!e.target.closest('#dispmenu'))dispmenu.classList.remove('open')});
+function renderMap(){const reached=Math.floor(S.dist/DEPOT_KM),rem=DEPOT_KM-(S.dist%DEPOT_KM);let h='<div class="here">You are at '+Math.floor(S.dist)+' km on the rail ocean</div>';
+for(let i=1;i<=6;i++){const idx=reached+i,km=i==1?rem:rem+(i-1)*DEPOT_KM;h+='<div class="stop'+(i==1?' next':'')+'"><span class="dot"></span><span class="nm">'+depotName(idx)+'</span><span class="km">'+km+' km</span></div>'}
+document.getElementById('maplist').innerHTML=h;}
+function renderLog(){document.getElementById('loglist').innerHTML=S.logHist.map(l=>'<div class="ln">'+l+'</div>').join('')}
+function renderTravelStatus(){const el=document.getElementById('travelstatus');if(!el)return;if(S.mode=='depot'){el.innerHTML='';return}
+const reg=BIOMES[Math.max(0,curIdx)],wl=(wBlend<0.5?wCur:wNext).label,rn=reg?reg.name:'the wastes';
+if(S.layout=='landscape'){el.innerHTML='<b>'+rn+'</b>'+(wl?' · '+wl:'')}
+else el.innerHTML='Rolling through <b>'+rn+'</b>'+(wl?' · <b>'+wl+'</b>':'')+'<br>hull '+Math.max(0,Math.round(S.hull))+'/'+maxHull();}
+let _pd=false,_pdrag=false,_psx=0,_ppan=0;
+// map a pointer event to logical 320x180, accounting for object-fit:contain letterboxing (landscape)
+const _fit=()=>{const r=cv.getBoundingClientRect(),ca=640/360,ra=r.width/r.height;let dw=r.width,dh=r.height,ox=0,oy=0;if(ra>ca){dw=r.height*ca;ox=(r.width-dw)/2}else{dh=r.width/ca;oy=(r.height-dh)/2}return{r,dw,dh,ox,oy};};
+const _lx=e=>{const f=_fit();return (e.clientX-f.r.left-f.ox)/f.dw*320;};
+const _ly=e=>{const f=_fit();return (e.clientY-f.r.top-f.oy)/f.dh*180;};
+cv.addEventListener('pointerdown',e=>{_pd=true;_pdrag=false;_psx=_lx(e);_ppan=S.pan;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+cv.addEventListener('pointermove',e=>{if(!_pd)return;const dx=_lx(e)-_psx;if(!_pdrag&&Math.abs(dx)>6)_pdrag=true;if(_pdrag&&!(S.boss||S.raiders.length)){S.pan=Math.max(0,Math.min(S.maxPan,_ppan+dx));S.panHintT=2;}});
+cv.addEventListener('pointerup',e=>{const ix=_lx(e),iy=_ly(e);if(_pd&&Math.abs(ix-_psx)<8&&S.crate&&!S.crate.grabbed){const c=S.crate;if(ix>=c.x-9&&ix<=c.x+20&&iy>=c.y-10&&iy<=c.y+20)grabCrate();}_pd=false;_pdrag=false;try{cv.releasePointerCapture(e.pointerId)}catch(_){}});
+cv.addEventListener('pointercancel',()=>{_pd=false;_pdrag=false;});
+function upd(){
+document.getElementById('s-scrap').textContent=Math.floor(S.scrap);
+document.getElementById('s-food').textContent=Math.floor(S.food);
+document.getElementById('s-fuel').textContent=Math.floor(S.fuel);
+document.getElementById('s-hull').textContent=Math.max(0,Math.round(S.hull))+'/'+maxHull();
+document.getElementById('hullbox').className='st'+(S.hull<maxHull()*0.35?' warn':'');
+const b=document.getElementById('go'),nd=document.getElementById('nextdepot'),docked=S.mode=='depot';
+b.classList.toggle('docked',docked);
+if(docked){b.disabled=false;b.textContent=S.view=='travel'?'At '+S.depot.name:'▸ Open '+S.depot.name}
+else if(S.mode=='run'){b.disabled=true;b.textContent='Crossing the rail ocean...'}
+else{b.disabled=S.fuel<fuelC();b.textContent='Depart \u00b7 '+fuelC()+' fuel'}
+{const km='<span style="color:#cdb894">'+Math.floor(S.dist)+' km</span>';
+ if(docked)nd.innerHTML=km+' \u00b7 docked at '+S.depot.name;
+ else if(S.mode=='run')nd.innerHTML=km+' \u00b7 crossing the rail ocean\u2026';
+ else{const ni=Math.floor(S.dist/DEPOT_KM)+1,rem=Math.ceil(DEPOT_KM-(S.dist%DEPOT_KM));nd.innerHTML=km+' \u00b7 \u25b8 next stop <span style="color:#cdb894">'+depotName(ni)+'</span> \u2014 '+rem+' km'+(S.discount?'  \u00b7  <span style="color:#e0a33a">\u00bd upgrade ready</span>':'')}}
+document.querySelector('#tabs .tab[data-v="travel"]').classList.toggle('alert',docked);
+{let cr=false;for(const s of S.slots){if(s){const c=activeCrew(s);if(c.rank<MAXRANK&&S.scrap>=crewRankCost(c.rank)){cr=true;break}}}if(S.heroes.length)cr=true;
+document.querySelector('#tabs .tab[data-v="crew"]').classList.toggle('alert',cr&&S.view!='crew');}
+appEl.classList.toggle('vopen',S.view!='travel'||docked);
+renderTravelStatus();
+if(S.view=='map')renderMap();
+}
+function px(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+function box(x,y,w,h,c){px(x-1,y-1,w+2,h+2,'#241a12');px(x,y,w,h,c)}
+function vtier(l){return Math.min(3,Math.floor((l-1)/5))}
+const TBODY=['#8a5a3a','#7d8388','#566069','#3e4a52'];
+const THI=['#a8714a','#9aa0a6','#7e8a93','#5f6f7a'];
+function tier(l){return TBODY[vtier(l)]}
+function tierHi(l){return THI[vtier(l)]}
+const BASE=138,CARH=26,DECK=BASE-CARH,WHR=8;
+// ---- material system (from War Rig reference): 5-value metal ramps + rust + grime + junk ----
+const MAT=[
+['#1a1009','#3a241a','#6b4632','#9a6a48','#c79064'],
+['#14110d','#2f363b','#566069','#7e8a93','#9aa0a6'],
+['#0f1316','#2a3138','#46525c','#647079','#8a96a0'],
+['#0c1014','#222a30','#3e4a52','#5a6770','#7e8b96']];
+const RUSTR=['#2a1505','#5a341c','#8a5026','#b0703a'];
+// weapon metals (ao, shadow, mid, light, highlight) — guns are forged steel, not car-armor
+const GUNM=['#0e1218','#243038','#3e4e58','#5e7280','#8ea4b4'];
+const ROCKM=['#10140c','#28301c','#41492f','#5f6b42','#86935a'];
+const BRASSM=['#241808','#5a4015','#8a6526','#bb9038','#e6c870'];
+// faction palettes (NPCs) — Raider = gunmetal-black + raider-red warpaint
+const RAIDM=['#0b0d10','#1e2428','#363d43','#525c64','#76838c'];
+const RAIDRED=['#4a120e','#8a2018','#c83028'];
+const TRADM=['#1c1208','#3a2817','#5f4329','#8a6840','#b5905c']; // survivor caravan — warm salvage brown
+function mat(l){return MAT[vtier(l)]}
+function panel(x,y,w,h,m){px(x,y,w,h,m[2]);px(x,y,w,1,m[4]);px(x,y+1,w,1,m[3]);px(x,y+h-2,w,1,m[1]);px(x,y+h-1,w,1,m[0]);px(x,y,1,h,m[1]);px(x+w-1,y,1,h,m[1])}
+function cyl(x,y,w,h,m){px(x,y,w,h,m[2]);px(x,y,w,1,m[1]);px(x,y+1,w,1,m[3]);px(x,y+2,w,1,m[4]);px(x,y+3,w,1,m[3]);px(x,y+h-2,w,1,m[1]);px(x,y+h-1,w,1,m[0])}
+function streak(x,y,len,seed){const c=RUSTR[1+Math.floor(hash(seed)*2)];for(let i=0;i<len;i++)px(x,y+i,1,1,i<len-1?c:RUSTR[0])}
+function rustPatch(x,y,seed){const c=RUSTR[1+Math.floor(hash(seed)*3)];px(x,y,2,1,c);px(x,y+1,1,1,RUSTR[0]);if(hash(seed*1.7)>0.5)px(x+1,y+1,1,1,c)}
+function spike(x,y,len,ang){const dx=Math.cos(ang),dy=Math.sin(ang);for(let i=0;i<len;i++)px(x+dx*i,y+dy*i,1,1,i<2?'#6b6258':'#33302c')}
+function skull(x,y){px(x,y,4,3,'#cfc8bc');px(x,y+3,3,1,'#a89f93');px(x+1,y+1,1,1,'#241a12');px(x+3,y+1,1,1,'#241a12');px(x+1,y+3,3,1,'#16110b')}
+function chain(x,y,len){for(let i=0;i<len;i++)px(x+(i%2),y+i,1,1,i%2?'#3a322c':'#5f564c')}
+function armorPass(cx,w,t){
+if(t>=1){px(cx+Math.floor(w*0.30),DECK+3,1,CARH-6,'#241a12');px(cx+Math.floor(w*0.62),DECK+3,1,CARH-6,'#241a12');px(cx+1,DECK+1,w-2,1,THI[t])}
+if(t>=2){px(cx,DECK+1,2,CARH-3,'#22201c');px(cx+w-2,DECK+1,2,CARH-3,'#22201c');for(let rv=cx+3;rv<cx+w-2;rv+=4){px(rv,DECK+3,1,1,'#16110b');px(rv,BASE-5,1,1,'#16110b')}}
+if(t>=3){px(cx,DECK-1,w,1,'#e0a33a');if(Math.floor(S.T*3)%2==0)px(cx+2,DECK,w-4,1,'rgba(255,210,90,0.4)')}
+}
+function carStruct(cx,w,cm,i){
+// horizontal armored-plate seam dividing the side into riveted plates
+px(cx+1,DECK+12,w-2,1,cm[0]);px(cx+1,DECK+13,w-2,1,cm[4]);
+for(let rv=cx+5;rv<cx+w-3;rv+=6){px(rv,DECK+11,1,1,cm[4]);px(rv,DECK+12,1,1,cm[0])}
+// bolted corners (angle-iron frame)
+[[cx+1,DECK+1],[cx+w-2,DECK+1],[cx+1,BASE-5],[cx+w-2,BASE-5]].forEach(c=>{px(c[0],c[1],1,1,cm[4]);px(c[0],c[1]+1,1,1,cm[0])});
+// heavy bottom sill, dust/grime band, rust drips off the seam
+px(cx,BASE-3,w,1,cm[1]);
+for(let d=cx+2;d<cx+w-2;d+=3)if(hash(i*17+d)<0.45)px(d,BASE-3,2,1,'#34291e');
+streak(cx+Math.floor(w*0.22),DECK+13,5,i*5+3);streak(cx+Math.floor(w*0.78),DECK+13,4,i*5+4);
+}
+function underCar(cx,w){
+// air-reservoir tank slung between the bogies + brake hanger
+px(cx+13,BASE-6,w-26,3,'#2a2620');px(cx+13,BASE-6,w-26,1,'#4a443c');
+px(cx+12,BASE-6,1,3,'#3a342e');px(cx+w-13,BASE-6,1,3,'#3a342e');
+px(cx+Math.floor(w/2)-1,BASE-3,2,3,'#16110b');
+// leaf springs over each bogie
+px(cx+1,BASE-11,7,1,'#3a342e');px(cx+2,BASE-10,5,1,'#241a12');
+px(cx+w-8,BASE-11,7,1,'#3a342e');px(cx+w-7,BASE-10,5,1,'#241a12');
+}
+// CREW: a crew member anchored at a car's back corner. kind drives headgear/uniform; rank shows as gold pips.
+function crewFig(x,kind,rank){
+ const FY=DECK;
+ const U={captain:['#2a3340','#3e4a58'],sergeant:['#5a3a2a','#7a5436'],mechanic:['#37402f','#4a5540'],farmhand:['#6a5a36','#8a7448'],stoker:['#3a342e','#5a524a'],hero:['#6a2a3a','#8a3a50'],scavenger:['#5a4632','#7a5e42'],cook:['#7c7468','#9a9286'],medic:['#8a8e92','#a6aab0'],greaser:['#4a3e2e','#6a5a42'],tinker:['#37402f','#52604a'],warboss:['#3a1418','#5a2028'],bombardier:['#2e2a26','#46403a'],ironside:['#3a3e42','#565c62'],reaver:['#3a201c','#5a3028']}[kind]||['#444','#666'];
+ px(x-1,FY,5,1,'rgba(10,8,6,0.35)');                 // foot shadow
+ px(x,FY-3,1,3,'#2a2018');px(x+2,FY-3,1,3,'#2a2018'); // legs w/ gap
+ px(x,FY-8,3,5,U[0]);px(x,FY-8,3,1,U[1]);             // torso + shoulder light
+ px(x+1,FY-9,1,1,'#cda079');                          // face
+ if(kind=='captain'){px(x,FY-11,3,2,'#191c21');px(x-1,FY-9,5,1,'#10131a');}
+ else if(kind=='sergeant'){px(x,FY-11,3,1,'#3a2a1a');px(x+1,FY-12,2,1,'#4a3522');}
+ else if(kind=='mechanic'){px(x,FY-11,3,2,'#23211a');px(x,FY-10,3,1,'#9fd8ff');}
+ else if(kind=='farmhand'){px(x-1,FY-10,5,1,'#c2a35a');px(x,FY-11,3,1,'#a8863a');}
+ else if(kind=='stoker'){px(x,FY-11,3,1,'#1e1b18');px(x-1,FY-10,4,1,'#15120f');px(x+2,FY-8,1,1,'#15120f');}
+ else if(kind=='hero'){px(x,FY-11,3,2,'#2a1018');px(x+1,FY-13,1,2,'#ffd23e');}
+ else if(kind=='scavenger'){px(x,FY-11,3,1,'#454b50');px(x-1,FY-10,1,1,'#3a4045');px(x+1,FY-9,1,1,'#bfe3ff');px(x+1,FY-13,1,1,'#ffd23e');} // scrap-helm + goggle glint + hero crest
+ else if(kind=='cook'){px(x,FY-13,3,3,'#ece8dc');px(x+1,FY-14,1,1,'#f6f2e8');px(x,FY-11,3,1,'#d8b43e');}                       // tall toque + gold band
+ else if(kind=='medic'){px(x,FY-11,3,2,'#d8dce0');px(x+1,FY-10,1,1,'#3ad0c0');px(x+1,FY-13,1,1,'#ffd23e');}                   // clean cap + teal mark + hero crest
+ else if(kind=='greaser'){px(x-1,FY-10,5,1,'#241e16');px(x,FY-11,3,1,'#3a3026');px(x+1,FY-12,1,1,'#ffd23e');}             // flat oily cap + gold crest
+ else if(kind=='tinker'){px(x,FY-12,3,2,'#2a2a2a');px(x,FY-10,3,1,'#9fd8ff');px(x+1,FY-13,1,1,'#ffd23e');}                 // raised welding visor + glint + gold crest
+ else if(kind=='warboss'){px(x,FY-11,3,2,'#160a0c');px(x-1,FY-12,1,2,'#7a1c20');px(x+3,FY-12,1,2,'#7a1c20');px(x,FY-9,3,1,'#a8202a');px(x+1,FY-14,1,2,'#ffd23e');} // horned black helm + red warpaint + tall gold crest (RARE)
+ else if(kind=='bombardier'){px(x,FY-11,3,2,'#201e1a');px(x+1,FY-9,1,1,'#bfe3ff');px(x+1,FY-13,1,1,'#c83028');}            // gunner goggles + red crest
+ else if(kind=='ironside'){px(x-1,FY-11,5,2,'#565c62');px(x,FY-12,3,1,'#6e757c');px(x+1,FY-10,1,1,'#161a1c');px(x+1,FY-13,1,1,'#c83028');} // riveted steel helm w/ visor slit + red crest
+ else if(kind=='reaver'){px(x+1,FY-13,1,3,'#a8202a');px(x,FY-11,3,1,'#2a1614');px(x-1,FY-10,1,1,'#a8202a');}              // red mohawk crest + bandana
+ const rk=Math.min(rank||1,3);
+ for(let r=0;r<rk;r++)px(x+3,FY-7+r*2,1,1,'#e8d08a');
+}
+const RIDGE=[{x:0,w:96,h:26},{x:72,w:64,h:36},{x:160,w:84,h:22},{x:232,w:92,h:32}];
+const BLD=[{x:6,w:26,h:30},{x:40,w:18,h:46},{x:66,w:30,h:24},{x:122,w:22,h:40},{x:152,w:34,h:20},{x:212,w:24,h:48},{x:246,w:30,h:26},{x:292,w:22,h:38}];
+const CLOUD=[{x:18,y:14,w:36},{x:118,y:26,w:50},{x:228,y:10,w:42}];
+const STONES=[];for(let i=0;i<46;i++){const ys=[114,118,134,138,154,158,172,175];STONES.push({x:(i*67+13)%320,y:ys[i%8],s:1+(i%3==0?1:0)})}
+function cloud(cx,cy,w){px(cx,cy+3,w,7,'#f0d6a8');px(cx+5,cy,w-14,4,'#f0d6a8');px(cx+w*0.55,cy-2,9,3,'#f0d6a8');px(cx+2,cy+9,w-4,2,'#d9b27e')}
+function ridgePiece(rx,h){const by=110;px(rx+6,by-h,RW(rx,h)*0,0,'#000')}
+function RW(){return 0}
+function drawRidge(dx){RIDGE.forEach(m=>{const by=110;px(dx+m.x+m.w*0.3,by-m.h,m.w*0.4,m.h,'#b9886a');px(dx+m.x+m.w*0.15,by-m.h+8,m.w*0.7,m.h-8,'#b9886a');px(dx+m.x,by-m.h+16,m.w,Math.max(0,m.h-16),'#b9886a')});
+px(dx+182,66,2,34,'#9c6f52');px(dx+178,72,10,1,'#9c6f52');px(dx+179,80,8,1,'#9c6f52');px(dx+183,62,4,4,'#9c6f52')}
+function drawRuins(dx){BLD.forEach((b,i)=>{const by=110;
+px(dx+b.x,by-b.h+4,b.w,b.h-4,'#8a5a40');
+px(dx+b.x,by-b.h,Math.round(b.w*0.55),4,'#8a5a40');
+for(let r=by-b.h+8;r<by-4;r+=7)for(let c=dx+b.x+3;c<dx+b.x+b.w-3;c+=6)if((r+c+i)%3==0)px(c,r,2,3,'#5f3a28');
+});
+px(dx+88,98,52,4,'#7a4f38');px(dx+90,102,3,8,'#7a4f38');px(dx+112,102,3,8,'#7a4f38');px(dx+134,102,3,8,'#7a4f38');
+px(dx+140,98,1,6,'#4a3020');px(dx+142,98,1,4,'#4a3020');
+px(dx+186,92,2,18,'#5f4128');px(dx+182,94,10,2,'#5f4128')}
+function drawDebris(dx){
+px(dx+44,168,7,7,'#2e2620');px(dx+46,170,3,3,'#c9914f');
+px(dx+200,150,2,10,'#5f4128');px(dx+196,146,12,7,'#7d8388');px(dx+198,148,8,1,'#a85a4a');px(dx+198,151,6,1,'#a85a4a');
+px(dx+280,170,10,4,'#6b4a2e');px(dx+282,168,6,2,'#6b4a2e')}
+function lane(yt){
+px(0,yt+2,320,6,'#9c7445');
+const to=Math.floor(S.off)%12;
+for(let tx=-to;tx<320;tx+=12)px(tx,yt+2,6,4,'#5f4128');
+px(0,yt,320,1,'#6b4a2e');px(0,yt+1,320,1,'#3f2e20')}
+function wheel(wx,wy,r){
+const cx=wx+r/2,cy=wy+r/2,ro=r/2,sr=Math.max(1,ro-1),ph=S.off*0.55;
+px(wx,wy,r,r,'#1c140d');
+px(wx+1,wy+1,r-2,r-2,'#33383d');
+for(let k=0;k<4;k++){const a=ph+k*1.5708;px(cx+Math.cos(a)*sr-0.5,cy+Math.sin(a)*sr-0.5,1,1,'#5f564c')}
+px(cx-1,cy-1,2,2,'#8a7a64');
+px(cx+Math.cos(ph)*sr-0.5,cy+Math.sin(ph)*sr-0.5,1,1,'#e0a33a');
+}
+function nearRaider(x){let best=null,bd=1e9;for(const r of S.raiders){const d=Math.abs(r.x+8-x);if(d<bd){bd=d;best=r}}return best}
+function fireTarget(){
+if(S.boss&&!S.boss.dead)return{x:S.boss.x,y:150};
+const p=S.ptrain;if(p&&p.kind=='raider'&&!p.dead&&p.state=='pace')return{x:p.x+(p.elite?((p.cars?p.cars.length:3)*15/2):18),y:102};
+return null;
+}
+function spawnShot(kind,mx,my,ang,tg){
+let tx,ty,bh=false;
+if(tg){tx=tg.x;ty=tg.y;bh=true}
+else{const t=nearRaider(mx);if(!t)return;tx=t.x+8;ty=156}
+if(kind=='cannon'){const sp=380;S.tracers.push({k:'cannon',x:mx,y:my,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,g:0,life:1.1,tx,ty,bh})}
+else if(kind=='rocket'){const sp=205,a=Math.atan2(ty-my,tx-mx);S.tracers.push({k:'rocket',x:mx,y:my,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:0,life:2,tx,ty,st:0,bh})}
+else{const g=470;const t=0.6+Math.abs(tx-mx)/300;const vy=((ty-my)-0.5*g*t*t)/t,vx=(tx-mx)/t;S.tracers.push({k:'mortar',x:mx,y:my,vx,vy,g,life:t+0.4,tx,ty,bh})}
+}
+function spawnPort(kind,mx,my){
+const t=nearRaider(mx),ty=156,W=PORTW[kind],c=W.c;
+const tx=t?t.x+8:mx+70;
+if(kind=='flame'){if(!t||Math.abs(tx-mx)>72)return;for(let n=0;n<2;n++){const a=Math.atan2(ty-my,tx-mx)+(n-0.5)*0.18,sp=140;S.tracers.push({k:'cannon',x:mx,y:my,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:0,life:0.42,tx,ty,c,sz:6,fire:1,bh:!!t})}return}
+if(!t)return;
+if(kind=='flak'){for(let n=-1;n<=1;n++){const a=Math.atan2(ty-my,tx-mx)+n*0.12,sp=270;S.tracers.push({k:'cannon',x:mx,y:my,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:0,life:1,tx,ty:ty+n*4,c,sz:4,bh:!!t})}}
+else{const a=Math.atan2(ty-my,tx-mx),sp=330;S.tracers.push({k:'cannon',x:mx,y:my,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:0,life:1,tx,ty,c,sz:5,bh:!!t})}
+}
+function drawTracers(){
+S.tracers.forEach(p=>{
+if(p.k=='cannon'){const a=Math.atan2(p.vy,p.vx);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(a);
+if(p.c){const L=p.sz||4;px(-4-L,-1,L,1,p.c);px(-4,-1,4,2,p.fire?'#ffd9a0':'#fff4c2')}
+else{px(-13,-1,7,1,'#e0a33a');px(-7,-1,7,2,'#ffd23e');px(0,-1,4,2,'#fff8e0')}
+ctx.restore()}
+else if(p.k=='rocket'){const a=Math.atan2(p.vy,p.vx);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(a);
+px(-9,-2,4,3,'#ff7a2a');px(-12,-1,3,1,'#ffd23e');
+px(-3,-2,7,4,'#cdb894');px(-3,-2,7,1,'#efe3cc');px(4,-2,3,4,'#a85a4a');ctx.restore()}
+else{px(p.x-2,p.y-2,4,4,'#2e2620');px(p.x-1,p.y-2,2,1,'#9aa0a6');px(p.x,p.y-3,1,1,'#cdb894')}
+});
+}
+// procedural "life" layered over a static imported hero engine: cranking drivers + stack smoke.
+// positions are in the flipped (faces-right) sprite frame, world-x = EX-1+nx; speed-aware via S.off / S.T.
+function heroEngineFX(EX,eb){
+const a=S.off*0.55;
+// --- driver wheels (under the boiler, right-facing native frame): side-rod + spoke glints ---
+const drv=[56,70,84],wy=eb-6,rodY=wy+Math.round(Math.sin(a)*2);
+px(EX-1+drv[0],rodY,drv[drv.length-1]-drv[0],2,'#6b6258');
+px(EX-1+drv[0],rodY-1,2,3,'#9a8a74');px(EX-1+drv[drv.length-1],rodY-1,2,3,'#9a8a74');
+drv.forEach(wx=>{const cx=EX-1+wx;
+px(Math.round(cx+Math.cos(a)*3-0.5),Math.round(wy+Math.sin(a)*3-0.5),2,2,'#e0c89a');
+px(Math.round(cx-Math.cos(a)*2.4),Math.round(wy-Math.sin(a)*2.4),1,1,'#8a7a64')});
+// --- smoke plume from the stack ---
+const skx=EX-1+54,sky=eb-37;S.stackX=skx;
+for(let i=0;i<10;i++){const age=((S.T*1.1+i*0.36)%3.6);
+const pyy=sky-age*6.5,pxx=skx+Math.sin(age*1.05+i*1.3)*age*1.5,sz=2+age*0.8,al=Math.max(0,0.6-age*0.13);
+if(al>0.03)px(Math.round(pxx-sz/2),Math.round(pyy-sz/2),Math.ceil(sz),Math.ceil(sz),'rgba('+(age<1.1?'48,44,40':'96,90,84')+','+al.toFixed(2)+')')}
+}
+function drawTrain(){
+const segs=S.slots.length;
+const carW=40;
+const EX=S.ex+S.pan;
+const ec=tier(S.engine),eh=tierHi(S.engine),et=vtier(S.engine),em=mat(S.engine);
+const eb=BASE;
+const ENGSKIN=S.engineSkin&&spriteReady(S.engineSkin);let crX,mTop;
+if(ENGSKIN){blitSprite(S.engineSkin,EX-1,eb,S.engineSkinScale||1,false);heroEngineFX(EX,eb);}
+if(!ENGSKIN){
+// ===================== ENGINE — elongated war-rig: war-deck · cockpit · boiler (faces right) =====================
+// (cowcatcher plow drawn after the wheels, below)
+// --- chassis / running board (full length) ---
+px(EX-1,eb-3,97,3,'#1c140d');px(EX-1,eb-4,97,1,em[1]);
+// --- REAR WAR-DECK (extended flatbed — salvage rig) ---
+const pfX=EX,pfW=34,pfTop=eb-13;
+px(pfX,pfTop,pfW,10,em[1]);px(pfX,pfTop,pfW,1,em[3]);px(pfX,pfTop+1,pfW,1,em[2]);px(pfX,eb-3,pfW,1,'#1c140d');
+for(let pk=pfX+3;pk<pfX+pfW-1;pk+=5)px(pk,pfTop+2,1,7,em[0]);
+for(let rk=pfX+2;rk<pfX+pfW-1;rk+=5)px(rk,pfTop+8,1,1,em[4]);
+streak(pfX+6,pfTop+2,5,53);streak(pfX+24,pfTop+3,4,59);rustPatch(pfX+15,pfTop+4,71);
+px(pfX,pfTop-3,3,4,em[0]);px(pfX,pfTop-3,3,1,em[4]);
+px(pfX+pfW-3,pfTop-4,3,5,em[0]);px(pfX+pfW-3,pfTop-4,3,1,em[4]);
+chain(pfX+1,pfTop+1,7);
+// --- derrick crane: lattice mast + winch + counterweight (jib drawn last, after cars) ---
+crX=pfX+8;mTop=pfTop-22;
+px(crX,mTop,2,pfTop-mTop,em[0]);px(crX+6,mTop,2,pfTop-mTop,em[0]);
+px(crX,mTop,2,1,em[4]);px(crX+6,mTop,2,1,em[4]);
+for(let ry=mTop+3;ry<pfTop-1;ry+=4)px(crX+2,ry,4,1,em[2]);
+px(crX+1,mTop+6,6,1,em[1]);px(crX+1,mTop+14,6,1,em[1]);
+px(crX-1,mTop-2,9,3,em[0]);px(crX-1,mTop-2,9,1,em[4]);
+if(Math.floor(S.T*2)%2==0)px(crX+3,mTop-4,2,2,'#ff7a2a');else px(crX+3,mTop-4,2,2,'#8a3a1a');
+px(crX,pfTop-4,7,4,'#33302c');px(crX,pfTop-4,7,1,'#5f564c');px(crX+2,pfTop-3,2,2,'#8a7a64');
+px(crX+9,pfTop-7,4,6,'#2a2620');px(crX+9,pfTop-7,4,1,'#5f564c');px(crX+9,pfTop-2,4,1,'#16110b');
+// --- deck scrap: fuel drums + exhaust pipe near the cab end ---
+px(pfX+pfW-11,pfTop-6,5,7,'#5a4632');px(pfX+pfW-11,pfTop-6,5,1,'#7a6248');px(pfX+pfW-10,pfTop-4,3,1,'#caa23a');px(pfX+pfW-11,pfTop-1,5,1,'#241a12');
+px(pfX+pfW-6,pfTop-5,4,6,'#4a4238');px(pfX+pfW-6,pfTop-5,4,1,'#6b6258');px(pfX+pfW-6,pfTop-1,4,1,'#241a12');
+px(pfX+pfW-2,pfTop-12,2,13,em[0]);px(pfX+pfW-1,pfTop-12,1,13,em[2]);
+if(Math.floor(S.T*5)%2==0)px(pfX+pfW-2,pfTop-14,2,2,'rgba(70,64,58,0.5)');
+// --- RAISED COCKPIT (cab — the tall peak) ---
+const cabX=EX+34,cabT=eb-36,cabW=16,cabH=30;
+box(cabX,cabT,cabW,cabH,em[0]);panel(cabX,cabT,cabW,cabH,em);
+px(cabX-2,cabT-2,cabW+4,4,em[0]);px(cabX-2,cabT-2,cabW+4,1,em[4]);px(cabX-2,cabT+1,cabW+4,1,em[1]);
+px(cabX+3,cabT+5,4,9,'#16242a');px(cabX+9,cabT+5,4,9,'#16242a');
+px(cabX+3,cabT+5,4,1,'#9fd8d8');px(cabX+9,cabT+5,4,1,'#9fd8d8');
+px(cabX+8,cabT+5,1,9,em[1]);
+for(let rv=cabT+17;rv<cabT+cabH-2;rv+=4){px(cabX+1,rv,1,1,em[4]);px(cabX+cabW-2,rv,1,1,em[4])}
+px(cabX+3,cabT+17,cabW-6,3,'#2a2218');for(let hz=cabX+3;hz<cabX+cabW-3;hz+=4)px(hz,cabT+17,2,3,'#caa23a');
+streak(cabX+4,cabT+26,5,31);streak(cabX+12,cabT+27,4,37);
+chain(cabX+cabW,cabT+10,8);
+// --- BOILER (elongated cylinder) ---
+const boX=EX+50,boW=28,boT=eb-28,boH=22;
+box(boX,boT,boW,boH,em[0]);cyl(boX,boT,boW,boH,em);
+for(let bd=boX+5;bd<boX+boW-1;bd+=7){px(bd,boT+1,1,boH-2,em[0]);px(bd+1,boT+1,1,boH-2,em[3]);px(bd,boT+2,1,1,'#cdb894')}
+for(let i2=0;i2<6;i2++){rustPatch(boX+2+Math.floor(hash(i2*5.1)*(boW-4)),boT+3+Math.floor(hash(i2*2.7)*(boH-7)),i2+1)}
+streak(boX+8,boT+boH-5,4,11);streak(boX+20,boT+boH-4,3,23);
+for(let rs=boX+3;rs<boX+boW-2;rs+=4){px(rs,boT+1,1,1,em[4]);px(rs,boT+boH-2,1,1,em[0])}
+// domes + valve
+px(boX+5,boT-4,6,5,em[2]);px(boX+5,boT-5,6,1,em[4]);px(boX+5,boT-1,6,1,em[0]);px(boX+6,boT-4,3,1,em[3]);
+px(boX+11,boT-3,1,3,'#cdb894');
+// smokestack (forward)
+const stkX=boX+18;S.stackX=stkX;
+px(stkX,boT-16,5,18,em[0]);px(stkX+1,boT-15,3,17,em[2]);px(stkX+1,boT-15,1,17,em[3]);
+px(stkX-1,boT-18,7,3,em[0]);px(stkX,boT-17,5,1,em[2]);px(stkX+1,boT-16,3,4,'#1a1410');
+// armored ram-cowl + forward spike fan
+px(boX+20,boT-3,8,4,em[2]);px(boX+20,boT-3,8,1,em[4]);px(boX+20,boT,8,1,em[1]);
+px(boX+23,boT-5,5,3,em[2]);px(boX+23,boT-5,5,1,em[4]);
+spike(boX+20,boT-2,7,-1.4);spike(boX+22,boT-3,9,-1.15);spike(boX+24,boT-4,8,-1.25);spike(boX+26,boT-3,7,-0.9);spike(boX+18,boT-1,6,-1.6);
+// --- SMOKEBOX (front iron door + headlamp) ---
+const sbX=boX+boW,sbW=9;
+box(sbX,boT,sbW,boH,'#22201c');panel(sbX,boT,sbW,boH,MAT[1]);
+px(sbX+2,boT+5,5,12,'#2a262a');px(sbX+3,boT+9,3,3,'#3a4045');
+px(sbX+1,boT-3,4,4,'#241a12');px(sbX+2,boT-2,2,2,'#ffd23e');
+// --- wheels: bottoms aligned to the rail at y=138, matching the cars ---
+wheel(pfX+4,eb-5,5);wheel(pfX+13,eb-5,5);
+wheel(cabX+8,eb-6,6);
+wheel(boX+2,eb-9,9);wheel(boX+11,eb-9,9);wheel(boX+20,eb-9,9);
+wheel(sbX+3,eb-6,6);
+// --- piston cylinder ---
+px(sbX-4,eb-13,6,6,'#33383d');px(sbX-3,eb-12,4,1,'#5f6b72');
+// --- connecting rod (cranks with the drivers) ---
+const erod=eb-5+Math.round(Math.sin(S.off*0.55)*2);
+px(boX+2,erod,24,2,'#6b6258');px(boX+2,erod-1,2,3,'#9a8a74');px(boX+22,erod-1,2,3,'#9a8a74');
+[boX+2,boX+11,boX+20].forEach(wc=>{const a=S.off*0.55;px(wc+Math.cos(a)*3-0.5,(eb-5)+Math.sin(a)*3-0.5,2,2,'#cdb894')});
+// --- bold raked cowcatcher plow ---
+const plX=sbX,plBot=eb-1;
+for(let r=0;r<17;r++){const hh=18-r;if(hh<2)continue;const xx=plX+r;
+px(xx,plBot-hh,1,hh,r<2?em[0]:(r%2?em[2]:em[1]));px(xx,plBot-hh,1,1,em[4])}
+px(plX,plBot,17,2,'#1c140d');px(plX,plBot-18,2,1,'#9a8a74');
+// --- engine tiers ---
+if(et>=1)px(boX,boT+Math.floor(boH/2),boW,1,'#e0a33a');
+if(et>=2){px(boX+18,boT-4,4,3,em[2]);px(boX+18,boT-5,4,1,em[4]);px(cabX+1,cabT+2,1,2,'#ffd23e')}
+if(et>=3){px(boX,boT,boW,1,'#e0a33a');if(Math.floor(S.T*4)%2==0){px(cabX+3,eb-7,9,2,'#ff7a2a');px(cabX+4,eb-6,7,1,'#ffd23e')}px(sbX+2,boT+8,2,2,'#cdf0ff')}
+}
+// =================== CARS ===================
+let cx=EX;
+for(let i=segs-1;i>=0;i--){
+px(cx-4,BASE-9,4,3,'#241a12');px(cx-4,BASE-10,4,1,'#3a322c');
+cx-=carW+4;
+const s=S.slots[i];
+if(!s){
+px(cx,BASE-6,carW,6,'#4a443c');px(cx,BASE-6,carW,1,'#5f564c');
+px(cx+2,BASE-9,2,3,'#241a12');px(cx+carW-4,BASE-9,2,3,'#241a12');
+px(cx,BASE-2,carW,2,'#1c140d');px(cx+5,BASE-5,carW-10,1,'#3a322c');
+wheel(cx+3,BASE-8,WHR);wheel(cx+carW-11,BASE-8,WHR);
+continue}
+const tc=tier(s.lvl),th=tierHi(s.lvl),cm=mat(s.lvl);
+box(cx,DECK,carW,CARH,cm[0]);panel(cx,DECK,carW,CARH,cm);
+px(cx,BASE-2,carW,2,'#1c140d');
+px(cx+Math.floor(carW*0.34),DECK+2,1,CARH-5,cm[0]);px(cx+Math.floor(carW*0.66),DECK+2,1,CARH-5,cm[1]);
+for(let k=0;k<4;k++){rustPatch(cx+2+Math.floor(hash(i*9+k*5.3)*(carW-4)),DECK+3+Math.floor(hash(i*7+k*3.1)*(CARH-7)),i*13+k+1)}
+streak(cx+Math.floor(carW*0.3),DECK+3,4,i*3+1);streak(cx+Math.floor(carW*0.72),DECK+4,3,i*3+2);
+for(let rv=cx+3;rv<cx+carW-1;rv+=5){px(rv,DECK+2,1,1,cm[4]);px(rv,DECK+3,1,1,cm[0]);px(rv,BASE-5,1,1,cm[0])}
+const hv=hash(i*131+7),dx2=cx+Math.floor(carW*0.5)-4;
+if(s.type=='troop'||s.type=='repair'){
+if(hv<0.4){
+px(dx2,DECK+4,8,17,'#2a201a');px(dx2,DECK+4,1,17,'#3a322c');px(dx2+7,DECK+4,1,17,'#16110b');px(dx2+1,DECK+4,6,1,'#3a322c');
+for(let dr=DECK+6;dr<DECK+20;dr+=4){px(dx2+1,dr,1,1,'#16110b');px(dx2+6,dr,1,1,'#16110b')}
+px(dx2-1,DECK+7,1,3,'#4a443c');px(dx2-1,DECK+14,1,3,'#4a443c');
+px(dx2+6,DECK+12,2,1,'#cdb894');
+}
+else if(hv<0.7){
+px(dx2,DECK+5,8,13,'#1c140d');px(dx2,DECK+5,1,13,'#3a322c');px(dx2+7,DECK+5,1,13,'#16110b');
+for(let sl=DECK+6;sl<DECK+18;sl+=2)px(dx2+1,sl,6,1,'#4a443c');
+}
+else{
+for(let hz=cx+3;hz<cx+carW-3;hz+=4)px(hz,BASE-9,2,3,'#b89a4a');
+px(cx+3,BASE-9,carW-6,1,'#2a201a');
+px(dx2+1,DECK+6,1,5,'#9a8a64');px(dx2+3,DECK+6,3,1,'#9a8a64');px(dx2+3,DECK+8,2,1,'#9a8a64');px(dx2+3,DECK+10,3,1,'#9a8a64');
+}
+}
+const vt=vtier(s.lvl);
+if(vt>=1&&s.type!='farm'&&s.type!='gun'&&s.type!='troop'&&s.type!='oil'){px(cx+carW-8,DECK-3,4+vt,3,'#5a4632');px(cx+carW-7,DECK-4,3+vt,1,'#7a6248')}
+armorPass(cx,carW,vt);
+carStruct(cx,carW,cm,i);
+if(s.type=='farm'){
+// interior glasshouse (in the body)
+px(cx+1,DECK+1,carW-2,13,'#241a12');
+px(cx+2,DECK+2,carW-4,11,'#bfe3d8');px(cx+2,DECK+2,carW-4,2,'#dff0ea');
+for(let g=cx+5;g<cx+carW-3;g+=6)px(g,DECK+2,1,11,'#3c5a3c');
+for(let p=cx+5;p<cx+carW-4;p+=5){const sw=Math.round(Math.sin(S.T*2.5+p*0.7));px(p+sw,DECK+4,2,6,'#6e9a3e');px(p+sw,DECK+3,2,2,'#9fc25f');px(p+sw,DECK+8,1,2,'#4a7a2e')}
+px(cx+4,DECK+3,1,6,'#eaf6f1');px(cx+carW-6,DECK+5,1,4,'#eaf6f1');
+// planter trough at the base
+px(cx+2,BASE-9,carW-4,7,'#3a2a1c');px(cx+2,BASE-9,carW-4,1,'#5f3a28');
+for(let p=cx+4;p<cx+carW-4;p+=4){px(p,BASE-8,2,3,'#5f7d3a');px(p,BASE-9,2,1,'#9fc25f')}
+// --- curved hoop-glass roof (breaks the flat top edge) ---
+const fpk=cx+Math.floor(carW/2),frh=8,fhf=carW/2-1;
+for(let x=cx+1;x<cx+carW-1;x++){const t=(x-fpk)/fhf,top=DECK-Math.round(frh*Math.sqrt(Math.max(0,1-t*t)));px(x,top,1,DECK-top,'#a9d6cb');px(x,top,1,1,'#241a12')}
+for(let rb=cx+4;rb<cx+carW-3;rb+=5){const t=(rb-fpk)/fhf,top=DECK-Math.round(frh*Math.sqrt(Math.max(0,1-t*t)));if(DECK-top>2)px(rb,top+1,1,DECK-top-1,'#3c5a3c')}
+px(fpk-4,DECK-frh+2,4,1,'#eaf6f1');px(fpk-1,DECK-frh+1,2,1,'#eaf6f1');
+// ridge vent (breathes) + occasional steam wisp
+const fvo=Math.sin(S.T*2)>0?1:0;
+px(fpk-2,DECK-frh-1,5,2,'#5a4632');px(fpk-2,DECK-frh-1,5,1,'#7a6248');
+px(fpk-1,DECK-frh-2-fvo,3,1+fvo,'#3a2f22');
+if(Math.floor(S.T*1.5+i)%3==0)px(fpk,DECK-frh-3-Math.round((S.T*4+i)%3),1,2,'#cfe3dd');
+// FARMHAND (crew) tending at the greenhouse's rear corner
+crewFig(cx+2,activeCrew(s).kind,activeCrew(s).rank);
+}
+if(s.type=='gun'){
+const wpn=s.wpn||'cannon';
+const gm=mat(s.lvl);
+panel(cx,DECK,carW,7,gm);                                              // armored steel gun-deck (was a flat plank)
+for(let rv=cx+3;rv<cx+carW-2;rv+=5){px(rv,DECK+1,1,1,gm[1]);px(rv,DECK+2,1,1,gm[4])} // rivet line across the deck
+px(cx+1,DECK-2,2,4,gm[1]);px(cx+1,DECK-3,2,1,gm[3]);                    // rear coaming wall
+px(cx+carW-3,DECK-2,2,4,gm[1]);px(cx+carW-3,DECK-3,2,1,gm[3]);         // front coaming wall (faces the enemy)
+// gunner's cupola (left) — commander scanning the line
+const cux=cx+4,clk=Math.round(Math.sin(S.T*1.3+i));
+box(cux,DECK-1,5,5,'#2a2f33');px(cux,DECK-1,5,1,'#4a5258');px(cux+1,DECK,3,1,'#22262a');
+px(cux+1+clk,DECK-3,2,2,'#3a4045');px(cux+2+clk,DECK-2,1,1,'#c9a07a');
+px(cux+1+clk,DECK-4,2,1,'#191c21');px(cux+clk,DECK-3,1,1,'#10131a'); // officer's peaked cap
+const grk=activeCrew(s).rank;
+for(let r=0;r<grk;r++)px(cux+4,DECK+r,1,1,'#e8d08a');           // rank tabs on the hatch
+if(s.hero)crewFig(cx+1,s.hero.kind,s.hero.rank);               // a recruited hero rides the gun car's back corner
+const pvx=cx+Math.floor(carW/2),pvy=DECK-2;
+let st=S.turr[i];if(!st||typeof st=='number')st={a:0,t:-9};S.turr[i]=st;
+const ft=fireTarget();
+const en=(S.raiders.length&&S.flash>0)||!!ft;
+let tgt;
+if(wpn=='mortar')tgt=-0.92+Math.sin(S.T*0.7+i)*0.06;
+else if(ft)tgt=Math.atan2(ft.y-pvy,ft.x-pvx);
+else if(S.raiders.length){const bb=nearRaider(pvx);tgt=Math.atan2(157-pvy,(bb.x+8)-pvx)}
+else tgt=-0.18+Math.sin(S.T*0.9+i)*0.14;
+st.a+=(tgt-st.a)*Math.min(1,S.dt*11);
+const cd=wpn=='cannon'?0.11:wpn=='rocket'?0.5:0.85;
+if(en&&S.T-st.t>=cd){const len=wpn=='rocket'?11:wpn=='mortar'?10:13;const mx=pvx+Math.cos(st.a)*len,my=pvy+Math.sin(st.a)*len;spawnShot(wpn,mx,my,st.a,ft);st.t=S.T}
+const since=S.T-st.t,recoil=Math.max(0,1-since/0.09)*(wpn=='cannon'?3:4),flash=since<0.06,wt=vtier(s.lvl);
+// raised armored barbette — the turret grows OUT of the gun-deck rather than perching on it
+{const m=mat(s.lvl),bw=carW-18,bx=pvx-Math.floor((carW-18)/2),iw=12+wt*2,ix=pvx-Math.floor(iw/2);
+ px(bx-1,DECK+3,bw+2,2,MAT[1][0]);            // barbette foot shadow on the deck
+ panel(bx,DECK-2,bw,6,m);                      // barbette block rising ~2px above the deck
+ px(bx+1,DECK-3,bw-2,1,m[3]);                  // upper rim highlight
+ for(let rb=bx+2;rb<bx+bw-1;rb+=4)px(rb,DECK+3,1,1,m[1]);     // rivets along the barbette foot
+ panel(ix,DECK-4,iw,4,m);                      // raised turret ring — the well the gun pivots in
+ px(ix+1,DECK-5,iw-2,1,m[4]);                  // ring crown specular
+ if(wt>=2){px(ix-1,DECK-3,1,3,m[1]);px(ix+iw,DECK-3,1,3,m[1])}} // ring bolts at higher tier
+ctx.save();ctx.translate(pvx,pvy);ctx.rotate(st.a);
+if(wpn=='cannon'){const L=16+wt*3,G=GUNM;
+ px(-6-recoil,-3,7,7,G[1]);px(-6-recoil,-3,7,1,G[3]);px(-6-recoil,3,7,1,G[0]);px(-6-recoil,-3,1,7,G[0]); // breech block (behind pivot)
+ px(-1-recoil,-2,L,4,G[2]);px(-1-recoil,-2,L,1,G[4]);px(-1-recoil,1,L,1,G[1]);                            // barrel w/ specular top + shadow underside
+ px(L-5-recoil,-3,5,6,G[3]);px(L-5-recoil,-3,5,1,G[4]);px(L-1-recoil,-3,1,6,G[0]);px(L-3-recoil,-1,3,1,G[0]); // muzzle brake + vent slit
+ if(flash){px(L-recoil,-3,7,6,'#ffd23e');px(L+3-recoil,-2,5,4,'#fff4c2')}
+}else if(wpn=='rocket'){const tubes=2+wt,podH=tubes*3+1,podW=10+wt,top=-Math.floor(podH/2),R=ROCKM;
+ px(-5-recoil,-1,4,3,R[1]);px(-5-recoil,-1,4,1,R[3]);          // mount arm from pivot to pod
+ panel(-2-recoil,top,podW,podH,R);                              // rack frame (lit, ramped)
+ for(let t=0;t<tubes;t++){const ty=top+1+t*3;
+  px(-1-recoil,ty,podW-2,2,'#161009');px(0-recoil,ty,1,2,R[0]); // each tube bore (deep shadow)
+  px(podW-3-recoil,ty,3,2,(flash&&t===0)?'#3a2a22':'#c44a26');  // warhead body (tube 0 spent on launch frame)
+  px(podW-1-recoil,ty,1,1,(flash&&t===0)?'#5a4438':'#e8a23a')}  // warhead tip (bright)
+ if(flash){px(podW-recoil,top+1,8,podH-1,'#ff7a2a');px(podW+3-recoil,top+2,5,podH-3,'#ffd23e')} // launch flare
+}else{const Tl=9+wt*2,tw=5+(wt>1?1:0),B=BRASSM,top=-Math.floor(tw/2);
+ px(-5-recoil,top+1,6,tw+1,GUNM[1]);px(-5-recoil,top+1,6,1,GUNM[3]);                              // steel cradle behind
+ px(-1-recoil,top,Tl,tw,B[2]);px(-1-recoil,top,Tl,1,B[3]);px(-1-recoil,top+1,Tl,1,B[4]);px(-1-recoil,top+tw-1,Tl,1,B[1]); // brass tube + specular band
+ px(Tl-3-recoil,top-1,3,tw+2,B[1]);px(Tl-2-recoil,top,2,tw,'#140e06');                            // muzzle mouth + bore
+ if(flash){px(Tl-recoil,top-2,6,tw+4,'#ffd23e');px(Tl+2-recoil,top-1,5,tw+2,'#fff4c2')}
+}
+ctx.restore();
+px(pvx-1,pvy-1,2,2,GUNM[1]);                                    // pivot cap bolt (small, never occludes the barrel)
+if(wt>=3&&Math.floor(S.T*4)%2==0)px(pvx-2,pvy-7,4,1,'#ffd23e'); // veteran turret marker blink
+// kill-tally — grows with the gun's level (groups of four, slashed)
+const kills=Math.min(s.lvl,12);
+for(let k=0;k<kills;k++){const grp=Math.floor(k/4),inG=k%4;px(cx+13+grp*6+inG,DECK+8,1,4,'#cdb894');if(inG==3)px(cx+12+grp*6,DECK+9,5,1,'#b8503a')}
+// mounted shell rack on the hull (centered, below the tally) — ready ammunition
+const rkx=cx+Math.floor(carW/2)-7,rky=DECK+14;
+px(rkx-1,rky-1,16,1,'#3a2f22');px(rkx-1,rky+5,16,1,'#3a2f22');px(rkx-1,rky-1,1,7,'#5a4632');px(rkx+15,rky-1,1,7,'#5a4632');
+for(let r=0;r<2;r++)for(let sc=0;sc<3;sc++){const sx=rkx+1+sc*5,sy=rky+r*3;px(sx,sy,4,2,'#b89a4a');px(sx,sy,4,1,'#d8c078');px(sx+4,sy,1,2,'#e0a33a')}
+// ---- HULL GUN PORTS (broadside casemate guns — ship-of-the-line detail) ----
+const port=s.port||'auto',PW=PORTW[port];
+if(typeof st.pt!='number')st.pt=-9;
+const pflash=S.T-st.pt<0.08,gy=DECK+4;
+[cx+3,cx+carW-12].forEach((gx,pi)=>{
+px(gx-1,gy-2,9,2,'#5a4632');px(gx-1,gy-2,9,1,'#7a6248');
+box(gx,gy,7,7,'#1c1812');px(gx+1,gy+1,5,5,'#0e0a06');
+px(gx,gy,1,7,'#3a2f22');px(gx+6,gy,1,7,'#3a2f22');
+if(port=='auto'){px(gx+5,gy+2,5,2,'#22262a');px(gx+9,gy+2,1,2,'#3a4045')}
+else if(port=='flak'){px(gx+5,gy+1,4,4,'#33383d');px(gx+8,gy+2,2,3,'#22262a')}
+else{px(gx+5,gy+2,4,3,'#3a2f2a');px(gx+8,gy+3,1,1,'#22262a');if(Math.floor(S.T*6+pi*3)%2==0)px(gx+9,gy+3,1,1,'#ff7a2a')}
+if(pflash){px(gx+8,gy+1,3,4,PW.c);px(gx+10,gy+2,2,2,'#fff4c2')}
+});
+const pcd=port=='auto'?0.3:port=='flak'?0.8:0.18;
+const pen=(S.raiders.length&&S.flash>0)||!!ft;
+if(pen&&S.T-st.pt>=pcd){spawnPort(port,cx+carW-2,gy+3);st.pt=S.T}
+}
+if(s.type=='troop'){
+const FY=DECK; // the camp stands on the deck line
+px(cx+1,FY,carW-2,2,'#6e5638');px(cx+1,FY,carW-2,1,'#8a6e44'); // planked deck
+// standard-bearer SERGEANT (crew) at the back corner, camp colours flying past his shoulder
+crewFig(cx+1,activeCrew(s).kind,activeCrew(s).rank);
+px(cx+5,FY-13,1,13,'#241a12');
+const tfw=Math.round(Math.sin(S.T*5));
+px(cx+6,FY-13,5+tfw,4,'#a85a4a');px(cx+6,FY-13,5,1,'#c2452f');px(cx+6,FY-10,4,1,'#7a2c20');
+// tarp lean-to — posts + light sagging canvas + supply crate
+px(cx+6,FY-8,1,8,'#3a2f22');px(cx+15,FY-4,1,4,'#3a2f22');
+for(let x=cx+6;x<=cx+15;x++){const top=FY-8+Math.round((x-(cx+6))*4/9),sag=Math.round(Math.sin((x-cx)*0.8)*0.6);px(x,top+sag,1,2,'#b8a47c');px(x,top+sag,1,1,'#cdbb8e')}
+px(cx+8,FY-5,5,5,'#5a4632');px(cx+8,FY-5,5,1,'#7a6248');
+// trooper sitting hunched on the crate
+px(cx+10,FY-9,3,4,'#7a6a4a');px(cx+10,FY-9,3,1,'#9a8a64');px(cx+11,FY-10,1,1,'#c9a07a');px(cx+10,FY-11,3,1,'#5a4a30');
+// brazier hearth — barrel, flame, warm pool, smoke
+const bz=cx+19,flk=Math.round(Math.sin(S.T*9));
+box(bz,FY-8,5,8,'#2a241e');px(bz,FY-8,5,1,'#4a4038');
+px(bz+1,FY-12+flk,3,4,'#ff7a2a');px(bz+1,FY-13+flk,2,3,'#ffd23e');px(bz+2,FY-14+flk,1,2,'#fff4c2');
+px(bz-1,FY,7,1,'#5a3320');
+if(Math.floor(S.T*2+i)%2==0)px(bz+2,FY-15-Math.round((S.T*3+i)%5),1,2,'#5a5048');
+// fire-tender (olive) — split legs, helmet, face, arm to the flames
+const tx2=bz+6;
+px(tx2,FY-3,1,3,'#241a12');px(tx2+2,FY-3,1,3,'#241a12');
+px(tx2,FY-8,3,5,'#5a6e3a');px(tx2,FY-8,3,1,'#7a8e4e');
+px(tx2+1,FY-9,1,1,'#c9a07a');px(tx2,FY-11,3,2,'#3c4a2e');
+px(tx2-1,FY-7,1,2,'#5a6e3a');
+// lookout (grey-blue) — split legs, helmet, face, spyglass scanning ahead
+const lx=cx+31,lkb=Math.round(Math.sin(S.T*1.6+i));
+px(lx,FY-3+lkb,1,3,'#241a12');px(lx+2,FY-3+lkb,1,3,'#241a12');
+px(lx,FY-8+lkb,3,5,'#4a5a66');px(lx,FY-8+lkb,3,1,'#6a7a86');
+px(lx+1,FY-9+lkb,1,1,'#c9a07a');px(lx,FY-11+lkb,3,2,'#33383d');
+px(lx+3,FY-9+lkb,4,1,'#22262a');px(lx+6,FY-10+lkb,1,2,'#33383d');
+// sandbag fighting position (front corner)
+px(cx+35,FY-5,4,5,'#a8916b');px(cx+35,FY-5,4,1,'#c2b088');px(cx+36,FY-3,1,1,'#8a7656');px(cx+38,FY-3,1,1,'#8a7656');
+}
+if(s.type=='repair'){
+const FY=DECK;
+px(cx+1,FY,carW-2,2,'#5a5e62');px(cx+1,FY,carW-2,1,'#7e848a'); // steel deck plate
+// --- gantry crane hauling a spare wheel (rear) ---
+const jsw=Math.round(Math.sin(S.T*1.1+i));
+px(cx+4,FY-15,2,15,'#33383d');px(cx+5,FY-15,1,15,'#22262a');
+px(cx+4,FY-15,12,2,'#33383d');px(cx+4,FY-14,12,1,'#4a5258');
+px(cx+9,FY-15,1,1,'#22262a');px(cx+13,FY-15,1,1,'#22262a');
+px(cx+14,FY-13,1,4+jsw,'#1c140d');
+const whx=cx+11+jsw,why=FY-8;
+box(whx,why,7,7,'#2a2620');px(whx+1,why+1,5,5,'#3a342e');px(whx+2,why+2,3,3,'#1c140d');px(whx+3,why+3,1,1,'#4a443c');
+px(cx+14+jsw,FY-9,1,2,'#cdb894');
+// MECHANIC (crew) at the back corner, working the crane (drawn after the mast so pips read)
+crewFig(cx+1,activeCrew(s).kind,activeCrew(s).rank);
+// --- welding station (center) — the working heart ---
+const wbx=cx+19;
+box(wbx,FY-5,9,5,'#3a2f28');px(wbx,FY-5,9,1,'#5a4a3e');px(wbx+1,FY-3,7,1,'#241a12');
+px(wbx+2,FY-11,3,6,'#3a4035');px(wbx+2,FY-11,3,1,'#4a5045');
+px(wbx+2,FY-13,3,2,'#22262a');px(wbx+1,FY-12,1,2,'#22262a');
+px(wbx+4,FY-7,2,2,'#3a4035');
+const arc=Math.floor(S.T*14+i)%2==0;
+if(arc){px(wbx+6,FY-6,2,2,'#cdf0ff');px(wbx+6,FY-7,1,1,'#fff4c2');px(wbx+2,FY-13,3,1,'#bfe8ff');
+for(let sp=0;sp<5;sp++)px(wbx+6+Math.floor(hash(i*31+sp*9)*6)-2,FY-5+Math.floor(hash(i*7+sp*3)*6),1,1,sp%2?'#ffd23e':'#ff7a2a');}
+px(wbx+5,FY-4,3,1,'#5f3a28');
+// --- parts clutter (front) ---
+px(cx+30,FY-7,5,7,'#3a322c');px(cx+30,FY-7,5,1,'#5a4a3e');px(cx+31,FY-8,3,1,'#6b4a2e');px(cx+30,FY-4,5,1,'#241a12');
+box(cx+35,FY-6,5,6,'#2a2620');px(cx+36,FY-5,3,4,'#3a342e');px(cx+37,FY-4,1,2,'#1c140d');
+px(cx+27,FY-1,4,1,'#4a5258');
+if(Math.floor(S.T*1.6+i)%3==0)px(cx+33,FY-10-Math.round((S.T*3+i)%4),1,2,'#cfe3dd');
+// toolboxes lashed to the hull
+px(cx+2,BASE-8,4,4,'#33383d');px(cx+2,BASE-8,4,1,'#4a5258');px(cx+carW-6,BASE-8,4,4,'#33383d');px(cx+carW-6,BASE-8,4,1,'#4a5258');
+}
+if(s.type=='oil'){
+// --- riveted oil tanker: a fat iron cylinder slung on the car ---
+const tL=cx+4,tR=cx+carW-2,tw=tR-tL,tT=DECK-7,tB=DECK+9,th2=tB-tT;
+px(tL+2,tT,tw-4,th2,'#2f3338');                                   // tank body
+px(tL,tT+2,2,th2-4,'#2a2e33');px(tR-2,tT+2,2,th2-4,'#2a2e33');     // rounded end caps
+px(tL+1,tT+1,1,th2-2,'#24282c');px(tR-1,tT+1,1,th2-2,'#24282c');
+px(tL+2,tT,tw-4,2,'#4a525a');px(tL+2,tT+2,tw-4,1,'#3c444c');       // top curve highlight
+px(tL+2,tB-3,tw-4,3,'#1e2226');                                   // bottom shadow
+px(tL+4,tT+1,tw-9,1,'#6a737c');                                   // long sheen
+for(let bx=tL+5;bx<tR-2;bx+=7){px(bx,tT,1,th2,'#181b1e');px(bx,tT+3,1,1,'#5a626a');px(bx,tB-4,1,1,'#3a4047')} // riveted bands
+px(tL+2,DECK+1,tw-4,3,'#caa15a');px(tL+2,DECK+1,tw-4,1,'#e0bd76');px(tL+2,DECK+3,tw-4,1,'#8a6a32'); // amber hazard band
+for(let hz=tL+4;hz<tR-3;hz+=4)px(hz,DECK+1,2,3,'#2a2018');         // hazard stencil ticks
+const dxc=cx+Math.floor(carW/2)-1;                               // top fill dome + cap
+px(dxc,tT-3,4,3,'#3a4045');px(dxc,tT-3,4,1,'#4a5258');px(dxc+1,tT-4,2,1,'#1a1d20');px(dxc+1,tT-2,2,1,'#10131a');
+px(tR-3,tB-2,3,2,'#1a1d20');px(tR-1,tB,1,3,'#16110b');px(tR-3,BASE-3,3,1,'#16110b'); // valve + spill
+px(tL+9,tB-1,1,3,'#16110b');px(tL+18,tB-1,1,2,'#16110b');         // oily drips
+px(tL+2,DECK-3,2,2,'#16221b');px(tL+2,DECK-3,1,1,'#7fd8a0');       // sight gauge glint
+// STOKER (crew) at the back corner, sooty by the firebox
+crewFig(cx+1,activeCrew(s).kind,activeCrew(s).rank);
+}
+underCar(cx,carW);
+wheel(cx+3,BASE-8,WHR);wheel(cx+carW-11,BASE-8,WHR);
+}
+// =================== CABOOSE ===================
+px(cx-4,BASE-9,4,3,'#241a12');
+cx-=28;const cbW=24;
+box(cx,DECK,cbW,CARH,'#8a3a30');
+px(cx+1,DECK+1,cbW-2,2,'#a85a4a');
+px(cx+1,BASE-4,cbW-2,2,'#5a221a');
+px(cx,BASE-2,cbW,2,'#1c140d');
+const ct=vtier(S.caboose);
+px(cx+3,DECK+6,4,6,'#16242a');px(cx+3,DECK+6,4,1,'#9fd8d8');
+px(cx+cbW-7,DECK+6,4,6,'#16242a');px(cx+cbW-7,DECK+6,4,1,'#9fd8d8');
+box(cx+7,DECK-6,10,8,'#6e2c24');px(cx+8,DECK-5,8,1,'#a85a4a');
+px(cx+9,DECK-4,3,3,'#ffd23e');px(cx+13,DECK-4,3,3,'#16242a');
+px(cx-1,DECK+9,1,7,'#241a12');px(cx-3,DECK+8,5,1,'#3a322c');px(cx-3,DECK+10,5,1,'#3a322c');px(cx-2,DECK+8,1,1,'#5f564c');
+const blink=Math.floor(S.T*2)%2==0;
+px(cx+1,BASE-9,3,3,blink?'#ffd23e':'#8a5a1a');
+px(cx,DECK+1,1,9,'#241a12');const cfw=Math.round(Math.sin(S.T*6)),cfl=7+ct*2;px(cx-cfl,DECK+2,cfl,4,'#8a2a22');px(cx-cfl,DECK+2,cfl,1,'#a8412f');px(cx-cfl-cfw,DECK+3,2,2,'#6e2018');
+if(ct>=1){px(cx+7,DECK+3,1,CARH-6,'#4a1c16');px(cx+16,DECK+3,1,CARH-6,'#4a1c16');px(cx+1,DECK,cbW-2,1,'#c2452f')}
+if(ct>=2){px(cx,DECK+1,2,CARH-3,'#3a1610');px(cx+cbW-2,DECK+1,2,CARH-3,'#3a1610')}
+if(ct>=3){px(cx,DECK-1,cbW,1,'#e0a33a');if(Math.floor(S.T*3)%2==0)px(cx+2,DECK,cbW-4,1,'rgba(255,210,90,0.4)')}
+wheel(cx+2,BASE-8,WHR);wheel(cx+13,BASE-8,WHR);
+// --- crane jib + hook (drawn last so the arm reaches over the cars) ---
+if(!ENGSKIN){const jL=24;for(let j=0;j<jL;j++){const jx=crX-j,jy=mTop-Math.round(j*0.14);px(jx,jy,1,2,j<jL-1?em[2]:em[4]);if(j%4==0&&j>0)px(jx,jy+2,1,2,em[1])}
+for(let c=0;c<10;c++)px((crX+1)-c,(mTop+4)-Math.round(c*0.5),1,1,em[1]);
+const sway=Math.round(Math.sin(S.T*1.4)),hkx=crX-jL+1+sway,hky=mTop-Math.round(jL*0.14)+2;
+chain(hkx,hky,7);px(hkx-1,hky+7,3,1,'#9a8a74');px(hkx,hky+8,1,2,'#cdb894');}
+}
+function drawRaider(r){
+ const ry=164,x=r.x,k=r.kind||'buggy',m=RAIDM,R=RAIDRED;
+ const sw=k=='technical'?30:k=='bike'?16:24;
+ ctx.fillStyle='rgba(18,9,5,0.28)';ctx.fillRect(x-3,ry+1,sw,3);
+ if(k=='bike'){
+  // OUTRIDER — lone fast motorcycle
+  wheel(x+1,ry-6,6);wheel(x+10,ry-6,6);
+  px(x+2,ry-8,9,2,m[2]);px(x+2,ry-8,9,1,m[3]);px(x+2,ry-7,1,2,m[0]);          // frame between wheels
+  px(x+10,ry-10,2,4,m[1]);px(x+11,ry-11,3,1,m[0]);                            // fork + handlebar
+  px(x+4,ry-13,4,6,m[1]);px(x+4,ry-13,4,1,m[3]);px(x+4,ry-8,4,1,m[0]);        // hunched rider
+  px(x+7,ry-11,3,1,m[2]);                                                     // arm to bars
+  px(x+5,ry-15,3,2,'#c9a07a');px(x+5,ry-16,3,1,R[2]);px(x+6,ry-14,1,1,'#bfe3ff'); // head + red bandana + goggle
+  const bf=Math.round(Math.sin(S.T*7+x));px(x+2,ry-15,1,5,'#241a12');px(x-1,ry-15,3+bf,2,R[1]);px(x-1,ry-15,3,1,R[2]); // back pennant
+  if(Math.floor(S.T*9+x)%2==0)px(x-2,ry-5,2,2,'rgba(90,80,72,0.5)');           // exhaust
+ }else if(k=='technical'){
+  // GUN-TRUCK — heavy mounted autocannon
+  box(x,ry-11,24,10,m[1]);px(x+1,ry-10,22,1,m[3]);px(x+1,ry-3,22,1,m[0]);
+  for(let rv=x+3;rv<x+22;rv+=4)px(rv,ry-9,1,1,m[0]);
+  px(x+2,ry-6,20,1,R[1]);                                                     // raider-red warpaint stripe
+  box(x+14,ry-17,9,8,m[1]);px(x+15,ry-16,7,1,m[3]);                           // armored cab
+  px(x+16,ry-15,4,4,'#16242a');px(x+16,ry-15,4,1,'#9fd8d8');                  // windscreen
+  px(x+5,ry-15,8,5,m[2]);px(x+5,ry-15,8,1,m[3]);                              // gun mount on the bed
+  px(x+6,ry-18,3,3,'#c9a07a');px(x+6,ry-19,3,1,R[2]);                         // gunner + bandana
+  px(x+11,ry-14,12,2,m[1]);px(x+11,ry-14,12,1,m[4]);px(x+22,ry-14,2,2,m[0]);  // long autocannon barrel
+  if(S.flash>0&&Math.floor((S.flash*10+x))%3==0){px(x+24,ry-15,5,3,'#ffd23e');px(x+27,ry-14,3,2,'#fff4c2')}
+  wheel(x+3,ry-9,8);wheel(x+12,ry-9,8);wheel(x+20,ry-8,7);
+ }else{
+  // BUGGY — light attack car
+  box(x,ry-9,20,8,m[1]);px(x+1,ry-8,18,1,m[3]);px(x+1,ry-3,18,1,m[0]);
+  px(x-3,ry-8,3,7,m[1]);px(x-4,ry-6,2,3,m[0]);px(x-4,ry-9,2,1,m[4]);          // rear engine + exhaust
+  for(let rv=x+2;rv<x+18;rv+=4)px(rv,ry-7,1,1,m[0]);
+  box(x+5,ry-16,9,7,m[1]);px(x+6,ry-15,7,1,m[0]);                            // roll cage
+  px(x+6,ry-19,4,3,'#c9a07a');px(x+6,ry-21,4,2,R[2]);                        // driver + red bandana
+  px(x+12,ry-15,2,2,m[1]);px(x+14,ry-17,7,2,m[2]);px(x+20,ry-18,3,1,m[0]);   // mounted gun
+  if(S.flash>0&&Math.floor((S.flash*10+x))%3==0){px(x+21,ry-19,4,3,'#ffd23e');px(x+24,ry-18,2,2,'#fff4c2')}
+  const bw=Math.round(Math.sin(S.T*6+x));px(x+2,ry-22,1,7,'#241a12');px(x+3,ry-22,4+bw,3,R[1]);px(x+3,ry-22,4,1,R[2]); // banner
+  if(Math.floor(S.T*8+x)%2==0)px(x-5,ry-4,2,2,'rgba(90,80,72,0.5)');
+  wheel(x+1,ry-8,8);wheel(x+11,ry-8,8);
+ }
+}
+const BOSSM=['#150c07','#39271b','#5e4233','#876048','#a37e5a']; // warlord rust-iron (grimmer than the player's)
+const BENGW=40,BCARW=28;
+function drawBossEngine(fx,by,c){const m=BOSSM,R=RAIDRED,T=S.T;
+ // cowcatcher plow (front-left) — spiked, red-tipped
+ px(fx-2,by-1,3,14,m[1]);px(fx-2,by-1,3,1,m[3]);
+ for(let s=0;s<5;s++){const sy=by-1+s*3;px(fx-6,sy,5,2,m[2]);px(fx-8,sy,2,1,R[1])}
+ // boiler — horizontal cylinder with banding + rust
+ cyl(fx+1,by-18,24,16,m);
+ for(let p=fx+5;p<fx+24;p+=5)px(p,by-17,1,15,m[1]);
+ streak(fx+9,by-9,6,fx+3);streak(fx+17,by-7,5,fx+9);
+ px(fx+1,by-13,3,5,m[1]);px(fx+1,by-12,2,2,'#e8c060');                       // smokebox + headlamp
+ // smokestack + steam/sand domes
+ px(fx+4,by-27,5,10,m[1]);px(fx+3,by-28,7,2,m[2]);px(fx+3,by-28,7,1,m[3]);
+ if(Math.floor(T*5)%2==0){px(fx+4,by-31,3,3,'rgba(60,50,44,0.5)');px(fx+5,by-34,4,3,'rgba(60,50,44,0.4)')}
+ px(fx+13,by-23,6,6,m[2]);px(fx+14,by-24,4,1,m[3]);px(fx+13,by-23,6,1,m[4]);
+ px(fx+20,by-21,4,4,m[2]);px(fx+20,by-21,4,1,m[3]);
+ // cab (rear) with windows + skull plate
+ panel(fx+25,by-25,15,27,m);px(fx+24,by-27,17,2,m[2]);px(fx+24,by-27,17,1,m[3]);
+ px(fx+28,by-22,4,6,'#16242a');px(fx+28,by-22,4,1,'#9fd8d8');
+ px(fx+34,by-22,4,6,'#16242a');px(fx+34,by-22,4,1,'#9fd8d8');
+ skull(fx+30,by-13);px(fx+25,by-4,15,1,R[1]);
+ // lead gun — heavy ram-cannon out the boiler front, aiming left
+ px(fx+5,by-15,9,4,m[3]);px(fx+5,by-15,9,1,m[4]);
+ px(fx-13,by-13,16,3,m[3]);px(fx-13,by-13,16,1,m[4]);px(fx-14,by-13,1,3,m[0]);
+ if(S.flash>0&&Math.floor(T*12)%2==0){px(fx-19,by-14,6,4,'#ffd23e');px(fx-23,by-13,4,3,'#fff4c2')}
+ // draped chains
+ for(let i=0;i<22;i++)px(fx+2+i,by-1+(i%2),1,1,i%2?'#3a322c':'#5f564c');
+ chain(fx+10,by+1,5);chain(fx+19,by+1,4);
+ // frame + spoked driving wheels
+ px(fx-2,by+3,BENGW+5,2,m[0]);
+ wheel(fx-1,by+4,7);wheel(fx+8,by+1,11);wheel(fx+20,by+1,11);wheel(fx+31,by+4,8);
+}
+function drawBossCar(cx,by,c,ci){const m=BOSSM,R=RAIDRED;
+ if(c.type=='fuel'){
+  panel(cx,by-2,BCARW,14,m);
+  cyl(cx+1,by-18,BCARW-2,16,m);
+  px(cx,by-16,2,12,m[1]);px(cx+BCARW-2,by-16,2,12,m[1]);                     // rounded end caps
+  px(cx+2,by-11,BCARW-4,2,R[1]);px(cx+2,by-11,BCARW-4,1,R[2]);              // hazard stripe
+  px(cx+Math.floor(BCARW/2)-2,by-21,4,4,m[2]);px(cx+Math.floor(BCARW/2)-1,by-22,2,1,m[3]); // fill dome
+  streak(cx+6,by-8,5,cx+1);streak(cx+18,by-9,6,cx+7);
+  chain(cx+Math.floor(BCARW/2),by+1,5);
+  wheel(cx+5,by+6,7);wheel(cx+BCARW-7,by+6,7);
+ }else{
+  panel(cx,by-9,BCARW,21,m);                                                 // lower hull
+  cyl(cx+1,by-21,BCARW-2,14,m);                                              // rounded boulder-armor
+  for(let p=cx+6;p<cx+BCARW-3;p+=6)px(p,by-8,1,17,m[0]);
+  streak(cx+7,by-5,5,cx+ci);rustPatch(cx+16,by-3,cx+ci*3);
+  px(cx+2,by-1,BCARW-4,1,R[1]);                                              // warpaint
+  skull(cx+4,by-6);
+  for(let i=0;i<BCARW-6;i++)px(cx+3+i,by-10+(i%2),1,1,i%2?'#3a322c':'#5f564c'); // draped chain
+  cyl(cx+7,by-29,13,8,m);px(cx+13,by-31,4,3,m[2]);                           // rounded tank turret + hatch
+  const w=c.wpn||'cannon';
+  if(w=='cannon'){px(cx+4,by-26,5,5,m[3]);px(cx-9,by-25,15,3,m[3]);px(cx-9,by-25,15,1,m[4]);px(cx-10,by-25,1,3,m[0]);}          // mantlet + barrel
+  else if(w=='rocket'){px(cx+4,by-29,8,9,m[3]);for(let t=0;t<3;t++){const ty=by-28+t*3;px(cx-4,ty,9,2,'#161009');px(cx-6,ty,2,2,R[2]);}} // launcher
+  else{px(cx+6,by-32,6,8,BRASSM[2]);px(cx+6,by-32,6,1,BRASSM[3]);px(cx+4,by-31,2,3,'#140e06');}                                 // mortar
+  if(S.flash>0&&Math.floor(S.T*11+ci)%2==0){px(cx-14,by-26,6,3,'#ffd23e');px(cx-18,by-25,4,2,'#fff4c2')}
+  wheel(cx+4,by+6,8);wheel(cx+13,by+6,8);wheel(cx+21,by+6,7);
+ }
+}
+function drawBoss(){
+ const bs=S.boss;if(!bs)return;const x=Math.round(bs.x),by=150;
+ const cars=bs.cars||[{type:'engine'},{type:'fuel'}];
+ const fx=x-24,convoyW=BENGW+(cars.length-1)*BCARW;
+ ctx.fillStyle='rgba(18,9,5,0.34)';ctx.fillRect(fx-9,by+12,convoyW+14,5);
+ let cxp=fx+BENGW;
+ for(let ci=1;ci<cars.length;ci++){drawBossCar(cxp,by,cars[ci],ci);cxp+=BCARW;}
+ drawBossEngine(fx,by,cars[0]);                                                      // engine leads, drawn on top
+ const w=Math.min(convoyW,116),hp=Math.max(0,bs.hp/bs.max);
+ px(fx-4,by-44,w,5,'#241a12');px(fx-3,by-43,w-2,3,'#5a1f18');px(fx-3,by-43,Math.round((w-2)*hp),3,'#d23a2a');
+}
+// ===================================================================================
+// FORTRESS — a showpiece armored war-train recreated from the "Fortress" reference.
+// Self-contained: draws at (ox, by) where by is the rail line (wheel bottoms rest on it).
+// Faces LEFT (plow on the left) to match the reference. 3 units: loco w/ watchtower cab,
+// two-tone armored boxcar, signal car w/ twin masts. Rust-iron (BOSSM) + neutral steel (MAT[1]).
+// ===================================================================================
+function drawFortress(ox,by){
+  const RU=BOSSM, ST=MAT[1], D='#1c140d', D2='#16110b', GOLD='#e0a33a';
+  const rivCol=(m,x,y)=>{px(x,y,1,1,m[4]);px(x,y+1,1,1,m[0])};
+
+  // ===================== UNIT 1 — ARMORED LOCOMOTIVE =====================
+  const dr=11, pr=7;                                   // driver / pilot wheel radii
+  // ground shadow
+  px(ox+2,by+1,90,2,'rgba(18,9,5,0.30)');
+  // --- pilot + drivers + rear-truck wheels (drawn low; skirt tucks their tops) ---
+  wheel(ox+5,by-pr,pr);
+  px(ox+13,by-9,44,8,D2);                                        // driver truck frame
+  wheel(ox+17,by-dr,dr);wheel(ox+30,by-dr,dr);wheel(ox+43,by-dr,dr);
+  px(ox+52,by-8,18,7,D2);                                        // rear bogie 1 frame
+  wheel(ox+54,by-pr,pr);wheel(ox+64,by-pr,pr);
+  px(ox+74,by-8,17,7,D2);                                        // rear bogie 2 frame
+  wheel(ox+76,by-pr,pr);wheel(ox+86,by-pr,pr);
+  // --- wheel skirt / frame: covers the upper wheels so they tuck under the body ---
+  px(ox+9,by-15,84,9,RU[0]);px(ox+9,by-16,84,1,RU[2]);px(ox+9,by-15,84,1,RU[1]);
+  for(let rv=ox+13;rv<ox+91;rv+=6)px(rv,by-13,1,1,RU[3]);
+  // connecting rod cranking across the visible lower drivers
+  const rod=by-5+Math.round(Math.sin(S.off*0.55)*2);
+  px(ox+21,rod,26,2,'#6b6258');px(ox+21,rod-1,2,2,'#9a8a74');px(ox+45,rod-1,2,2,'#9a8a74');
+  [ox+17,ox+30,ox+43].forEach(wc=>{const a=S.off*0.55;px(wc+dr/2+Math.cos(a)*3-0.5,(by-5)+Math.sin(a)*3-0.5,2,2,'#cdb894')});
+
+  // --- BOILER (rust cylinder; smokebox -> rear bunker) ---
+  const boX=ox+12,boY=by-30,boW=40,boH=14;
+  cyl(boX,boY,boW,boH,RU);
+  for(let bd=boX+12;bd<boX+boW-3;bd+=14){px(bd,boY+1,1,boH-2,RU[1]);px(bd,boY+2,1,1,RU[4]);px(bd,boY+boH-3,1,1,RU[0])}
+  for(let rs=boX+3;rs<boX+boW-2;rs+=4){px(rs,boY+1,1,1,RU[4]);px(rs,boY+boH-2,1,1,RU[0])}
+  for(let i=0;i<6;i++)rustPatch(boX+3+Math.floor(hash(i*5.1)*(boW-6)),boY+2+Math.floor(hash(i*2.7)*(boH-5)),i+3);
+  streak(boX+9,boY+boH-5,5,11);streak(boX+24,boY+boH-4,4,23);
+
+  // --- SMOKEBOX FRONT (dark steel, rounded) + headlamp + smokestack ---
+  const sbX=ox+3,sbW=9;
+  box(sbX,boY,sbW,boH,ST[1]);px(sbX,boY,sbW,1,ST[3]);
+  px(sbX-1,boY+2,1,boH-4,ST[0]);                                   // rounded left lip
+  px(sbX+2,boY+5,5,6,'#2a262a');px(sbX+3,boY+7,3,2,'#3a4045');     // smokebox door
+  px(sbX+2,boY+1,4,3,D2);px(sbX+3,boY+2,2,1,GOLD);                 // headlamp
+  px(sbX-2,boY+boH-4,2,5,RU[1]);                                   // buffer beam stub
+  px(sbX+2,boY-6,5,7,ST[0]);px(sbX+3,boY-5,3,6,ST[1]);px(sbX+1,boY-8,7,3,ST[0]);px(sbX+2,boY-7,5,1,ST[2]); // smokestack (short)
+
+  // --- FRONT PLOW / COWCATCHER (raked, point to lower-left) ---
+  const plBot=by-2;
+  for(let i=0;i<13;i++){const hh=4+i,xx=sbX-2+i;px(xx,plBot-hh,1,hh,i%2?ST[2]:ST[1]);px(xx,plBot-hh,1,1,ST[3])}
+  px(sbX-2,plBot,13,2,D2);
+
+  // --- steam & sand domes (mid boiler, between tower and bunker) ---
+  px(boX+24,boY-5,8,6,RU[2]);px(boX+24,boY-6,8,1,RU[4]);px(boX+25,boY-5,6,1,RU[3]);px(boX+24,boY,8,1,RU[0]); // steam dome
+  px(boX+33,boY-4,5,5,RU[2]);px(boX+33,boY-5,5,1,RU[4]);px(boX+34,boY-4,3,1,RU[3]);                          // sand dome
+
+  // --- ELEVATED REAR BUNKER (long armored cab) ---
+  const bnX=ox+50,bnW=42,bnT=by-38,bnH=23;
+  box(bnX,bnT,bnW,bnH,ST[1]);panel(bnX,bnT,bnW,bnH,ST);
+  panel(bnX+23,bnT,bnW-23,bnH,RU);                               // rusted rear portion
+  for(let s=bnX+9;s<bnX+bnW-4;s+=10){px(s,bnT+2,1,bnH-4,D2);px(s+1,bnT+2,1,bnH-4,s<bnX+23?ST[3]:RU[3])} // plate seams
+  for(let rv=bnT+3;rv<bnT+bnH-2;rv+=5){rivCol(ST,bnX+1,rv);rivCol(RU,bnX+bnW-2,rv)}
+  // row of dark slit windows / gun ports across the steel front
+  px(bnX+4,bnT+5,18,11,D2);px(bnX+4,bnT+5,18,1,ST[3]);px(bnX+4,bnT+15,18,1,ST[0]);
+  for(let w=0;w<4;w++){const wx=bnX+5+w*4;px(wx,bnT+6,2,9,'#0a0807');px(wx+2,bnT+6,1,9,ST[1])}
+  // armored doorway on the rusted rear
+  px(bnX+bnW-13,bnT+5,8,bnH-9,D2);px(bnX+bnW-13,bnT+5,1,bnH-9,RU[2]);px(bnX+bnW-6,bnT+5,1,bnH-9,'#0a0807');
+  px(bnX+bnW-10,bnT+12,3,1,GOLD);                                // latch
+  for(let i=0;i<8;i++)rustPatch(bnX+3+Math.floor(hash(i*7+20)*(bnW-6)),bnT+3+Math.floor(hash(i*3+20)*(bnH-6)),i*4+20);
+  streak(bnX+26,bnT+3,8,51);streak(bnX+bnW-6,bnT+4,6,52);streak(bnX+34,bnT+2,7,53);
+  // armored roof + twin raised hatches
+  px(bnX-1,bnT-2,bnW+2,3,ST[0]);px(bnX-1,bnT-2,bnW+2,1,ST[3]);px(bnX-1,bnT+1,bnW+2,1,ST[1]);
+  px(bnX+7,bnT-6,9,5,ST[1]);px(bnX+7,bnT-6,9,1,ST[3]);px(bnX+8,bnT-7,7,1,ST[2]);                  // roof hatch 1
+  px(bnX+26,bnT-6,9,5,RU[2]);px(bnX+26,bnT-6,9,1,RU[4]);px(bnX+27,bnT-7,7,1,RU[3]);               // roof hatch 2 (rust)
+
+  // --- WATCHTOWER (FRONT) — wide flat "lantern" roof, open cabin w/ watchman, narrow base ---
+  const twX=ox+16,twW=16;
+  // narrow riveted base/pedestal on the boiler (raised taller)
+  px(twX+1,by-37,twW-2,8,ST[1]);px(twX+1,by-37,twW-2,1,ST[3]);px(twX+1,by-30,twW-2,1,ST[0]);
+  for(let rvx=twX+3;rvx<twX+twW-2;rvx+=4){px(rvx,by-35,1,1,ST[4]);px(rvx,by-32,1,1,ST[4])}
+  px(twX+2,by-33,twW-4,1,RU[2]);                                 // rust band on base
+  // observation cabin (shorter) — corner posts framing a dark open interior
+  const cT=by-47,cB=by-37,cX=twX,cW=twW;
+  px(cX,cT,cW,cB-cT,D2);                                         // dark interior
+  px(cX,cT,2,cB-cT,ST[1]);px(cX+cW-2,cT,2,cB-cT,ST[1]);         // corner posts
+  px(cX,cT,2,1,ST[3]);px(cX+cW-2,cT,2,1,ST[3]);
+  px(cX,cB-3,cW,3,ST[1]);px(cX,cB-3,cW,1,ST[3]);px(cX,cB-1,cW,1,ST[0]); // bottom sill/rail
+  for(let rv=cT+2;rv<cB-3;rv+=4){rivCol(ST,cX,rv);rivCol(ST,cX+cW-1,rv)}
+  // watchman silhouette (bold: head + torso)
+  const wmx=cX+Math.floor(cW/2)-2;
+  px(wmx,cT+4,5,5,'#0d0b08');px(wmx+1,cT+1,3,3,'#0d0b08');
+  // wide flat overhanging roof + ridge crest of small bumps
+  px(cX-3,cT-3,cW+6,3,ST[1]);px(cX-3,cT-3,cW+6,1,ST[3]);px(cX-3,cT-1,cW+6,1,ST[0]);
+  px(cX-2,cT-4,cW+4,1,ST[2]);                                    // ridge
+  for(let f=0;f<3;f++){const fx=cX+1+f*6;px(fx,cT-6,2,2,ST[1]);px(fx,cT-6,2,1,ST[3])} // crest bumps
+  streak(cX+3,cT+2,4,41);
+
+  // ===================== UNIT 2 — TWO-TONE ARMORED BOXCAR =====================
+  const u2=ox+98;
+  px(u2-6,by-13,6,2,D2);px(u2-5,by-12,4,1,'#3a322c');             // coupler
+  const bcX=u2,bcW=44,bcT=by-36,bcH=31,bcHalf=Math.floor(bcW/2);
+  box(bcX,bcT,bcW,bcH,ST[1]);
+  panel(bcX,bcT,bcHalf,bcH,ST);                                   // left: steel
+  panel(bcX+bcHalf,bcT,bcW-bcHalf,bcH,RU);                        // right: rust
+  for(let s=bcX+6;s<bcX+bcW-3;s+=8){px(s,bcT+2,1,bcH-4,D2);px(s+1,bcT+2,1,bcH-4,s<bcX+bcHalf?ST[3]:RU[3])} // plate seams
+  for(let rv=bcT+3;rv<bcT+bcH-2;rv+=5){rivCol(ST,bcX+1,rv);rivCol(RU,bcX+bcW-2,rv)}
+  px(bcX+bcW-15,bcT+6,8,bcH-11,D2);px(bcX+bcW-15,bcT+6,1,bcH-11,RU[3]);px(bcX+bcW-8,bcT+6,1,bcH-11,'#0a0807'); // hatch/door
+  px(bcX+bcW-12,bcT+13,3,1,'#caa23a');                            // latch
+  for(let i=0;i<7;i++)rustPatch(bcX+3+Math.floor(hash(i*7+50)*(bcW-6)),bcT+3+Math.floor(hash(i*3+50)*(bcH-6)),i*4+60);
+  streak(bcX+11,bcT+2,6,71);streak(bcX+28,bcT+3,7,72);streak(bcX+bcW-5,bcT+4,5,73);
+  px(bcX,bcT-1,bcW,1,ST[3]);                                     // roof lip
+  const dr2=7;
+  px(bcX+3,by-7,19,6,D2);px(bcX+bcW-18,by-7,19,6,D2);            // bogie trucks
+  wheel(bcX+4,by-dr2,dr2);wheel(bcX+14,by-dr2,dr2);wheel(bcX+bcW-17,by-dr2,dr2);wheel(bcX+bcW-7,by-dr2,dr2);
+  px(bcX,by-9,bcW,4,RU[0]);px(bcX,by-10,bcW,1,RU[1]);            // wheel skirt over the bogies
+
+  // ===================== UNIT 3 — SIGNAL / CONTROL CAR =====================
+  const u3=bcX+bcW+6;
+  px(u3-6,by-13,6,2,D2);px(u3-5,by-12,4,1,'#3a322c');            // coupler
+  const scX=u3,scW=42,scT=by-34,scH=29;
+  box(scX,scT,scW,scH,ST[1]);panel(scX,scT,scW,scH,ST);
+  panel(scX+scW-15,scT,15,scH,RU);                               // rusted right portion
+  for(let s=scX+8;s<scX+scW-4;s+=9)px(s,scT+2,1,scH-4,D2);       // seams
+  for(let rv=scT+3;rv<scT+scH-2;rv+=5){rivCol(ST,scX+1,rv);rivCol(RU,scX+scW-2,rv)}
+  px(scX+6,scT+5,7,7,D2);px(scX+6,scT+5,7,1,ST[3]);px(scX+7,scT+6,5,1,'#243038'); // window
+  px(scX+scW-19,scT+6,9,scH-9,D2);px(scX+scW-19,scT+6,1,scH-9,RU[3]);px(scX+scW-15,scT+13,3,1,'#caa23a'); // door + latch
+  for(let i=0;i<5;i++)rustPatch(scX+3+Math.floor(hash(i*6+90)*(scW-6)),scT+4+Math.floor(hash(i*4+90)*(scH-7)),i*5+90);
+  streak(scX+20,scT+2,6,101);streak(scX+scW-5,scT+3,5,102);
+  px(scX,scT-1,scW,1,ST[3]);
+  px(scX+3,by-7,19,6,D2);px(scX+scW-18,by-7,19,6,D2);            // bogie trucks
+  wheel(scX+4,by-dr2,dr2);wheel(scX+14,by-dr2,dr2);wheel(scX+scW-17,by-dr2,dr2);wheel(scX+scW-7,by-dr2,dr2);
+  px(scX,by-9,scW,4,RU[0]);px(scX,by-10,scW,1,RU[1]);            // wheel skirt over the bogies
+  // --- TWIN MASTS ---
+  const mAx=scX+11,mAt=scT-18;                                    // signal mast w/ crossbar
+  px(mAx,mAt,1,18,ST[0]);px(mAx+1,mAt,1,18,ST[2]);
+  px(mAx-3,mAt+3,8,1,ST[1]);px(mAx-3,mAt+2,1,2,ST[2]);px(mAx+4,mAt+2,1,2,ST[2]);
+  px(mAx-1,mAt-2,4,2,RU[2]);px(mAx,mAt-3,1,1,GOLD);               // top finial + light
+  const mBx=scX+scW-15,mBt=scT-13;                                // capped stovepipe / periscope
+  px(mBx,mBt,3,13,ST[0]);px(mBx+1,mBt,1,13,ST[2]);
+  px(mBx-2,mBt-4,7,4,ST[1]);px(mBx-2,mBt-4,7,1,ST[3]);px(mBx-2,mBt-1,7,1,ST[0]); // rounded cap
+  px(mBx-1,mBt-6,5,2,ST[2]);
+}
+function drawPElite(x,y,p){
+ const m=RAIDM,R=RAIDRED,n=(p.cars||[]).length;ctx.globalAlpha=0.96;
+ for(let i=0;i<n;i++){const cx=x+i*15,w=(p.cars[i]||{}).wpn||'cannon';
+  panel(cx,y-11,14,12,m);                                                 // shaded armored hull
+  cyl(cx+2,y-15,10,5,m);                                                  // rounded turret superstructure
+  px(cx+4,y-9,1,8,m[1]);px(cx+9,y-9,1,8,m[1]);                            // plate seams
+  px(cx+3,y-3,9,1,R[1]);                                                  // warpaint
+  streak(cx+6,y-7,5,cx+i);
+  if(i%2==0)skull(cx+8,y-9);else rustPatch(cx+4,y-6,cx);
+  chain(cx+1,y-2,5);
+  if(w=='cannon'){px(cx+6,y+1,3,4,m[2]);px(cx+6,y+1,1,4,m[4]);px(cx+7,y+5,1,1,m[0]);}                                  // broadside barrel (fires DOWN)
+  else if(w=='rocket'){px(cx+4,y+1,2,3,m[2]);px(cx+8,y+1,2,3,m[2]);px(cx+4,y+1,1,3,m[4]);px(cx+8,y+1,1,3,m[4]);px(cx+4,y+3,2,1,R[2]);px(cx+8,y+3,2,1,R[2]);}
+  else{px(cx+5,y+1,5,3,BRASSM[2]);px(cx+5,y+1,5,1,BRASSM[3]);px(cx+5,y+1,1,3,BRASSM[4]);}
+  px(cx+1,y+1,2,2,m[0]);px(cx+11,y+1,2,2,m[0]);                           // wheels
+  if(p.muzzle>0){px(cx+5,y+5,4,2,'#ffd23e');px(cx+6,y+6,2,1,'#fff4c2');}  // down muzzle flash
+ }
+ const ex=x+n*15;                                                         // engine (leads, right)
+ panel(ex,y-12,15,13,m);cyl(ex+1,y-10,13,5,m);                            // hull + rounded boiler band
+ px(ex+2,y-2,11,1,R[1]);
+ px(ex+3,y-18,7,7,m[2]);px(ex+3,y-18,7,1,m[4]);px(ex+3,y-18,1,7,m[1]);px(ex+9,y-18,1,7,m[1]);px(ex+3,y-12,7,1,m[1]); // cab
+ px(ex+4,y-16,3,3,'#16242a');px(ex+4,y-16,3,1,'#9fd8d8');                 // window
+ px(ex+11,y-22,3,10,m[1]);px(ex+10,y-23,5,1,m[3]);                        // stack
+ if(Math.floor(S.T*5)%2==0)px(ex+11,y-26,3,3,'rgba(40,34,28,0.5)');
+ skull(ex+5,y-9);streak(ex+6,y-6,4,ex);
+ px(ex+13,y-10,5,3,m[3]);px(ex+13,y-10,5,1,m[4]);px(ex+13,y-8,5,1,m[1]);  // forward gun
+ if(p.muzzle>0){px(ex+18,y-10,4,3,'#ffd23e');px(ex+21,y-9,3,2,'#fff4c2')}
+ px(ex+2,y+1,3,3,m[0]);px(ex+10,y+1,3,3,m[0]);
+ const bw=Math.min((n+1)*15,76),hp=Math.max(0,p.hp/p.max);
+ px(x-1,y-27,bw,4,'#241a12');px(x,y-26,bw-2,2,'#5a1f18');px(x,y-26,Math.round((bw-2)*hp),2,'#d23a2a');
+ ctx.globalAlpha=1;
+}
+function drawPtrain(){
+const p=S.ptrain;if(!p)return;const x=Math.round(p.x),y=108,raider=p.kind=='raider';
+if(p.elite){drawPElite(x,y,p);return;}
+ctx.globalAlpha=0.94;
+const M=raider?RAIDM:TRADM;
+for(let c=0;c<2;c++){const bx=x+c*16;
+ panel(bx,y-12,15,12,M);                                                  // shaded hull (lit top / shadow base / AO / side shadows)
+ px(bx+4,y-9,1,8,M[1]);px(bx+10,y-9,1,8,M[1]);                            // plate seams
+ streak(bx+6,y-8,5,bx+c*3);                                               // rust drip
+ if(raider){for(let s=0;s<3;s++){px(bx+2+s*5,y-15,2,3,M[1]);px(bx+2+s*5,y-15,1,1,RAIDRED[2])} // red-tipped spikes
+  px(bx+1,y-3,13,1,RAIDRED[1]);}                                          // warpaint stripe
+ else{px(bx+1,y-16,13,4,'#9a7a4a');px(bx+1,y-16,13,1,'#bd9a68');px(bx+1,y-13,13,1,M[1]);       // canvas tarp (lit ridge)
+  px(bx+3,y-15,2,2,'#6f5230');px(bx+9,y-15,3,2,'#6f5230');rustPatch(bx+10,y-7,bx)}            // crate humps under the tarp
+}
+const ex=x+32;
+panel(ex,y-12,15,12,M);cyl(ex+1,y-10,13,5,M);                            // engine hull + rounded boiler band
+px(ex+3,y-18,8,7,M[2]);px(ex+3,y-18,8,1,M[4]);px(ex+3,y-18,1,7,M[1]);px(ex+10,y-18,1,7,M[1]);px(ex+3,y-12,8,1,M[1]); // cab
+px(ex+4,y-16,3,3,'#16242a');px(ex+4,y-16,3,1,'#9fd8d8');                 // window
+px(ex+11,y-21,3,9,M[1]);px(ex+10,y-22,5,1,M[3]);                         // stack + cap
+if(Math.floor(S.T*5)%2==0)px(ex+11,y-25,3,3,raider?'rgba(40,34,28,0.5)':'rgba(124,104,74,0.45)'); // smoke
+streak(ex+6,y-7,4,ex);
+if(raider){
+ px(ex+1,y-18,6,5,M[3]);px(ex+1,y-18,6,1,M[4]);px(ex+1,y-18,1,5,M[1]);   // gun shroud
+ px(ex+6,y-17,8,2,M[2]);px(ex+6,y-17,8,1,M[4]);                          // barrel
+ if(p.muzzle>0){px(ex+14,y-17,4,4,'#ffd23e');px(ex+17,y-16,3,2,'#fff4c2')}
+ skull(ex+4,y-10);
+ px(x-2,y-16,2,9,RAIDRED[2]);px(x-3,y-16,1,9,'#241a12');                 // war banner
+ const w=44,hp=Math.max(0,p.hp/p.max);px(x,y-27,w,4,'#241a12');px(x+1,y-26,w-2,2,'#5a1f18');px(x+1,y-26,Math.round((w-2)*hp),2,'#d23a2a')
+}else{
+ const wv=Math.floor(S.T*4)%2;px(ex+6,y-23,2,3,'#ffe39a');px(ex+6,y-26+wv,2,3-wv,'#ffe39a');  // lantern / waving survivor
+ px(ex+13,y-9,3,3,M[1]);px(ex+13,y-9,3,1,M[3])                                                 // buffer lamp
+}
+const wy=y+1;px(x+2,wy,3,3,'#241a12');px(x+13,wy,3,3,'#241a12');px(x+18,wy,3,3,'#241a12');px(x+29,wy,3,3,'#241a12');px(ex+3,wy,3,3,'#241a12');px(ex+10,wy,3,3,'#241a12');
+ctx.globalAlpha=1;
+}
+function drawCrate(){
+const c=S.crate;if(!c)return;const x=Math.round(c.x),y=Math.round(c.y+Math.sin(S.T*5)*1.5);
+const glow=Math.floor(S.T*4)%2==0;
+if(glow){ctx.fillStyle='rgba(255,210,90,0.28)';ctx.beginPath();ctx.ellipse(x+5,y+5,12,10,0,0,Math.PI*2);ctx.fill()}
+box(x,y,11,11,'#7a5230');px(x+1,y+1,9,2,'#9c6e42');
+px(x,y+5,11,1,'#3a261c');px(x+5,y,1,11,'#3a261c');
+px(x+4,y+4,3,3,glow?'#ffd23e':'#c98f4a');
+px(x+1,y+9,9,1,'#3a261c');
+}
+/* ---- PAINTED BACKGROUND HOOK ----
+   Paste a painted PNG URL or data: URI between the quotes below.
+   When set, it is blitted as the full backdrop (sky + landscape) and the
+   procedural scene is skipped. The train, rails, and effects still render
+   in code on top, so upgrades stay modular. Leave empty for procedural. */
+const BG_URL='';
+let bgImg=null,bgReady=false;
+if(BG_URL){bgImg=new Image();bgImg.onload=()=>bgReady=true;bgImg.crossOrigin='anonymous';bgImg.src=BG_URL;}
+function grad(x0,y0,x1,y1,stops){const g=ctx.createLinearGradient(x0,y0,x1,y1);for(const s of stops)g.addColorStop(s[0],s[1]);return g}
+function pxa(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+function blob(x,y,w,h){ctx.beginPath();ctx.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,Math.PI*2);ctx.fill()}
+function tri(ax,ay,bx,by,cx2,cy){ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.lineTo(cx2,cy);ctx.closePath();ctx.fill()}
+const CRACKS=[];for(let i=0;i<11;i++)CRACKS.push({x:i*32+(i*53%21),y:148+(i*7%26),len:13+(i%3)*9,dir:i%2?1:-1});
+function drawClouds(dx){
+const C=[[14,6,76,16],[118,3,96,22],[226,10,84,15],[300,16,66,13]];
+for(const c of C){const x=dx+c[0],y=c[1],w=c[2],h=c[3];
+ctx.fillStyle='rgba(64,30,24,0.5)';blob(x,y+h*0.35,w,h*0.75);
+ctx.fillStyle='rgba(98,46,32,0.55)';blob(x+6,y,w-12,h*0.7);
+ctx.fillStyle='rgba(150,76,46,0.5)';blob(x+12,y+1,w-34,h*0.45)}
+}
+function deadTree(x,base,h,c){pxa(x,base-h,2,h,c);pxa(x-3,base-h+2,3,1,c);pxa(x+2,base-h+4,3,1,c);pxa(x-2,base-h-1,2,1,c);pxa(x+2,base-h,2,1,c)}
+function h2(c){return[parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)]}
+function lerpCol(a,b,t){const A=h2(a),B=h2(b);return'rgb('+Math.round(A[0]+(B[0]-A[0])*t)+','+Math.round(A[1]+(B[1]-A[1])*t)+','+Math.round(A[2]+(B[2]-A[2])*t)+')'}
+function hash(n){n=Math.floor(n)|0;n=(n^61)^(n>>>16);n=(n+(n<<3))|0;n=n^(n>>>4);n=Math.imul(n,0x27d4eb2d);n=n^(n>>>15);return((n>>>0)%100000)/100000}
+/* deterministic per-cell prop placement: a stretch of world always looks the same */
+let curIdx=0,nextIdx=0,blendT=0;
+function cellBiomeIdx(k,seed){if(blendT>0&&hash(k*313+seed)<blendT)return nextIdx;return curIdx}
+function eachCell(par,cw,seed,cb){const sc=S.off*par,k0=Math.floor((sc-cw)/cw),k1=Math.floor((sc+360)/cw);for(let k=k0;k<=k1;k++)cb(k,k*cw-sc)}
+/* ---- prop primitives ---- */
+function wreckCar(x,y,c){ctx.fillStyle=c;pxa(x,y-9,24,9,c);pxa(x+5,y-15,13,7,c);pxa(x+2,y,5,3,c);pxa(x+17,y,5,3,c);pxa(x+7,y-13,8,1,'rgba(40,30,24,0.5)')}
+function drum(x,y,c){ctx.fillStyle=c;pxa(x,y-9,5,9,c);pxa(x+6,y-7,5,7,c);pxa(x,y-7,5,1,'rgba(30,20,14,0.4)')}
+function deadSign(x,y,c){ctx.fillStyle=c;pxa(x,y-13,1,13,c);pxa(x-5,y-13,11,5,c);pxa(x-3,y-11,7,1,'rgba(30,20,14,0.4)')}
+function tower(x,y,w,h,c){ctx.fillStyle=c;pxa(x,y-h,w,h,c);for(let r=y-h+4;r<y-3;r+=5)for(let cc=x+1;cc<x+w-1;cc+=4)if((r+cc)%3==0)pxa(cc,r,2,3,'rgba(20,16,12,0.45)');pxa(x,y-h,Math.round(w*0.6),3,c)}
+function ribArc(x,y,s,c){ctx.strokeStyle=c;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,s,Math.PI,0);ctx.stroke();ctx.lineWidth=1}
+function bonePillar(x,y,h,c){ctx.fillStyle=c;pxa(x,y-h,3,h,c);pxa(x-1,y-h,5,2,c);pxa(x-1,y-Math.floor(h*0.6),5,2,c)}
+function vertebra(x,y,c){ctx.fillStyle=c;pxa(x,y-7,7,7,c);pxa(x+2,y-10,3,4,c);pxa(x-2,y-5,2,3,c);pxa(x+7,y-5,2,3,c)}
+// distant landform silhouette — continuous column ridge (renders crisp + cheap), sits behind the far layer, haze fades it
+function ridgeLine(x0,baseY,w,base,amp,freq,ph,c,flat){const sh=Math.floor(ph*5);for(let i=0;i<w;i++){const t=x0+i;let h=base+amp*(0.5+0.5*Math.sin(t*freq+ph))+amp*0.4*hash(Math.floor(t/8)+sh);if(flat)h=Math.round(h/4)*4;pxa(t,baseY-h,1,h+1,c)}}
+function deadTree2(x,y,c){deadTree(x,y,14+Math.floor(hash(x)*8),c)}
+function drawFgWreck(dx){
+const x=dx+8,y=156;
+ctx.fillStyle='rgba(30,22,16,0.95)';blob(x,y,44,28);
+ctx.fillStyle='rgba(16,12,9,0.95)';blob(x+9,y+5,26,18);
+ctx.fillStyle='rgba(120,86,54,0.45)';blob(x+13,y+8,18,11);
+ctx.fillStyle='rgba(40,30,22,0.9)';pxa(x+30,y-2,16,5,'rgba(40,30,22,0.9)')
+}
+/* ---- biomes ---- */
+const RUST={name:'THE RUST FLATS',ground:['#c98f4a','#bb813f','#a56d33'],haze:'#e4aa60',
+far(x,p){ctx.fillStyle='rgba(150,112,82,0.5)';if(p<0.5){tri(x-30,109,x+2,74,x+34,109)}else{tri(x-20,109,x+6,86,x+30,109);tri(x+10,109,x+30,82,x+52,109)}},
+range(x,p){ridgeLine(x-14,110,132,7,5,0.055,1.2,'rgba(150,120,92,0.42)',true);ridgeLine(x,110,116,18,12,0.085,3.4,'rgba(112,84,60,0.62)',true)},
+mid(x,p){const c='rgba(70,50,36,0.86)';if(p<0.35)wreckCar(x,109,c);else if(p<0.7)deadTree2(x,109,c);else if(p<0.88){drum(x,109,c);drum(x+5,109,c)}else deadSign(x,109,c)},
+deb(x,p){if(p<0.4){ctx.fillStyle='rgba(34,26,18,0.9)';blob(x,158,16,9);ctx.fillStyle='rgba(120,86,54,0.4)';blob(x+5,160,7,4)}else if(p<0.7){pxa(x,165,4,3,'#9c6630');pxa(x+3,167,3,2,'#8a5a28')}else{pxa(x,163,6,1,'#cabfa6');pxa(x+2,162,1,2,'#cabfa6')}},
+land(x){ctx.fillStyle='rgba(60,44,32,0.85)';pxa(x,72,2,37,'rgba(60,44,32,0.85)');pxa(x+14,72,2,37,'rgba(60,44,32,0.85)');pxa(x-3,66,22,7,'rgba(70,52,38,0.9)');pxa(x-3,66,22,1,'rgba(120,90,60,0.6)');pxa(x+5,109,2,-0,'#000')}};
+const CITY={name:'THE DEAD CITY',ground:['#9a8460','#86714f','#6c5a40'],haze:'#d8c08e',
+far(x,p){ctx.fillStyle='rgba(120,104,84,0.5)';if(p<0.6){tower(x,109,12,30+Math.floor(hash(x)*16),'rgba(120,104,84,0.5)');tower(x+13,109,9,22,'rgba(120,104,84,0.5)')}else{tower(x,109,8,40,'rgba(120,104,84,0.5)');pxa(x+1,109-44,6,4,'rgba(120,104,84,0.5)')}},
+range(x,p){const c='rgba(108,98,84,0.5)',bx=Math.floor(x);for(let i=0;i<13;i++){const tx=x+i*8,th=10+Math.floor(hash(i*13+bx)*30),tw=3+Math.floor(hash(i*7+bx)*4);pxa(tx,110-th,tw,th,c);if(hash(i*5+bx)>0.55)pxa(tx+1,110-th-4,1,4,c)}},
+mid(x,p){const c='rgba(54,48,40,0.9)';if(p<0.45){tower(x,109,18,26+Math.floor(hash(x)*14),c)}else if(p<0.75){pxa(x,100,30,4,c);pxa(x+3,104,3,5,c);pxa(x+24,104,3,5,c)}else{pxa(x,90,2,19,c);pxa(x-6,88,16,8,c);pxa(x-4,90,12,4,'rgba(110,90,60,0.4)')}},
+deb(x,p){if(p<0.45){ctx.fillStyle='rgba(46,40,32,0.9)';blob(x,160,18,8)}else if(p<0.72){pxa(x,164,7,4,'#7a6c50');pxa(x+2,162,3,2,'#8a7c60')}else{ctx.strokeStyle='rgba(40,34,28,0.8)';ctx.beginPath();ctx.moveTo(x,168);ctx.lineTo(x+4,162);ctx.lineTo(x+8,167);ctx.stroke()}},
+land(x){const c='rgba(48,42,34,0.9)';ctx.save();ctx.translate(x,109);ctx.rotate(0.12);tower(0,0,22,56,c);ctx.restore();pxa(x+20,58,3,3,'rgba(200,80,40,0.5)')}};
+const REEF={name:'THE BONE REEF',ground:['#d8c6a8','#c6b291','#ac9576'],haze:'#ecdcc0',
+far(x,p){ctx.fillStyle='rgba(176,160,138,0.5)';if(p<0.5){ribArc(x,109,18+Math.floor(hash(x)*10),'rgba(186,172,150,0.5)')}else{bonePillar(x,109,30,'rgba(186,172,150,0.5)');bonePillar(x+8,109,20,'rgba(186,172,150,0.5)')}},
+range(x,p){ridgeLine(x,110,124,8,4,0.05,2,'rgba(178,164,142,0.45)',false);const c='rgba(192,180,158,0.4)';ribArc(x+30,110,28,c);ribArc(x+70,110,22,c)},
+mid(x,p){const c='rgba(150,140,120,0.85)',bn='rgba(206,196,172,0.9)';if(p<0.4){for(let v=0;v<4;v++)vertebra(x+v*6,109-v*2,bn)}else if(p<0.72){bonePillar(x,109,24,bn);ribArc(x+6,109,12,bn)}else{pxa(x,98,30,11,c);pxa(x+4,94,18,5,c);pxa(x,109,30,1,'rgba(40,34,28,0.5)')}},
+deb(x,p){if(p<0.45){ctx.fillStyle='rgba(210,200,178,0.9)';blob(x,162,9,5);pxa(x+3,160,2,2,'rgba(40,34,28,0.4)')}else if(p<0.72){pxa(x,165,5,2,'#cabfa6');pxa(x+1,163,1,2,'#cabfa6');pxa(x+4,164,1,2,'#cabfa6')}else{pxa(x,166,6,2,'#b89f86')}},
+land(x){const c='rgba(216,206,184,0.95)';ribArc(x,109,40,c);ribArc(x,109,33,c);ribArc(x,109,26,c);pxa(x-3,109-40,6,8,c);pxa(x-2,109-44,2,2,'rgba(40,34,28,0.6)');pxa(x+1,109-44,2,2,'rgba(40,34,28,0.6)')}};
+const BIOMES=[RUST,CITY,REEF];
+const BIOME_LEN=1150;
+function biomeIdx(r){if(r<=0)return 0;let i=Math.floor(hash(r*7+3)*BIOMES.length);const p=Math.floor(hash((r-1)*7+3)*BIOMES.length);if(i===p)i=(i+1)%BIOMES.length;return i}
+/* ---- weather: a mood layer that drifts independently of place, biased by biome ---- */
+const W_CLEAR={label:'',tint:[0,0,0,0],sun:1,haze:1,vig:0,part:null};
+const W_DUST={label:'DUST STORM',tint:[201,150,82,0.20],sun:0.72,haze:1.5,vig:0.10,part:'dust'};
+const W_ASH={label:'ASH FALL',tint:[78,70,66,0.24],sun:0.45,haze:1.25,vig:0.18,part:'ash'};
+const W_FOG={label:'CHOKING FOG',tint:[206,202,192,0.30],sun:0.5,haze:1.7,vig:0,part:'fog'};
+const W_BLOOD={label:'BLOOD SUN',tint:[122,28,30,0.26],sun:0.34,haze:1.1,vig:0.26,part:'ember'};
+const WEATHERS=[W_CLEAR,W_DUST,W_ASH,W_FOG,W_BLOOD];
+RUST.wx=[5,4,1,1,2];CITY.wx=[2,2,5,1,3];REEF.wx=[4,1,1,5,2];
+RUST.gtex=function(o){ctx.strokeStyle='rgba(150,110,60,0.16)';ctx.lineWidth=1;for(let i=0;i<6;i++){let x=((i*60)-o*0.5)%360;if(x<0)x+=360;const y=128+i*7;ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+22,y-2,x+44,y+1);ctx.stroke()}};
+CITY.gtex=function(o){let x0=-(o*0.6)%40;for(let x=x0;x<320;x+=40)pxa(x,128,1,48,'rgba(40,36,30,0.22)');for(let i=0;i<5;i++){let x=((i*72)-o*0.6)%360;if(x<0)x+=360;pxa(x,150,9,2,'rgba(192,168,78,0.22)')}};
+REEF.gtex=function(o){ctx.strokeStyle='rgba(230,220,200,0.18)';ctx.lineWidth=1;for(let i=0;i<8;i++){let x=((i*46)-o*0.6)%360;if(x<0)x+=360;const y=132+(i%4)*11;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+12,y-4);ctx.lineTo(x+24,y+2);ctx.stroke()}};
+const WX_LEN=560;
+let wCur=W_CLEAR,wNext=W_CLEAR,wBlend=0;
+function weatherIdx(wr){const bi=biomeIdx(Math.floor((wr*WX_LEN+WX_LEN/2)/BIOME_LEN)),w=BIOMES[bi].wx;let tot=0;for(const x of w)tot+=x;const r=hash(wr*911+17);let acc=0;for(let i=0;i<w.length;i++){acc+=w[i]/tot;if(r<acc)return i}return w.length-1}
+function computeWeather(){const wr=Math.floor(S.off/WX_LEN),within=(S.off/WX_LEN)-wr,bs=0.8;wBlend=within>bs?(within-bs)/(1-bs):0;wCur=WEATHERS[weatherIdx(wr)];wNext=WEATHERS[weatherIdx(wr+1)];S._wr=wr}
+function weatherParticles(w,amt){if(!w.part||amt<=0.02)return;
+if(w.part=='dust'){for(let i=0;i<26;i++){const sp=170+(i%5)*44;let x=310-((S.T*sp+i*60)%360);if(x<0)x+=360;const y=38+((i*53)%134)+Math.sin(S.T*2+i)*4;pxa(x,y,4,1,'rgba(210,170,110,'+(0.26*amt)+')')}}
+else if(w.part=='ash'){for(let i=0;i<34;i++){const x=((i*43)+Math.sin(S.T*0.7+i)*10)%320,y=(S.T*22+i*23)%192;pxa(x,y,1,1,'rgba(184,176,170,'+(0.5*amt)+')');if(i%4==0)pxa(x,y,2,1,'rgba(150,142,138,'+(0.4*amt)+')')}}
+else if(w.part=='fog'){for(let i=0;i<5;i++){let x=((i*80)-(S.T*12+i*30))%400;if(x<0)x+=400;const y=72+i*15;ctx.fillStyle='rgba(214,210,200,'+(0.10*amt)+')';blob(x-40,y,120,26)}}
+else if(w.part=='ember'){for(let i=0;i<14;i++){const x=((i*37)+Math.sin(S.T*1.3+i)*8)%320,y=172-((S.T*16+i*30)%152);pxa(x,y,1,1,'rgba(232,120,52,'+(0.55*amt)+')')}}
+}
+function applyWeather(){
+if(!wCur)return;
+const t1=wCur.tint,t2=wNext.tint;
+if(t1[3]>0){ctx.fillStyle='rgba('+t1[0]+','+t1[1]+','+t1[2]+','+(t1[3]*(1-wBlend))+')';ctx.fillRect(0,0,320,180)}
+if(t2[3]>0){ctx.fillStyle='rgba('+t2[0]+','+t2[1]+','+t2[2]+','+(t2[3]*wBlend)+')';ctx.fillRect(0,0,320,180)}
+const vg=wCur.vig*(1-wBlend)+wNext.vig*wBlend;
+if(vg>0.01){const v=ctx.createRadialGradient(160,90,30,160,90,182);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(10,4,6,'+vg+')');ctx.fillStyle=v;ctx.fillRect(0,0,320,180)}
+weatherParticles(wCur,1-wBlend);weatherParticles(wNext,wBlend);
+}
+/* ---- day/night: the base lighting layer; biome owns land, weather owns mood, time owns light ---- */
+const SKYKF=[
+{p:0.00,top:'#0b1024',mid:'#172038',hor:'#2a2c3e',light:0.06},
+{p:0.18,top:'#1d1838',mid:'#3a2c4a',hor:'#6e4a52',light:0.16},
+{p:0.27,top:'#3a3a6a',mid:'#8a6a72',hor:'#e0a07a',light:0.5},
+{p:0.42,top:'#6a86b0',mid:'#cdb088',hor:'#ecd2a0',light:1.0},
+{p:0.62,top:'#742f1f',mid:'#c96b3e',hor:'#efcd86',light:0.82},
+{p:0.74,top:'#3a1d2e',mid:'#8a3a32',hor:'#d98a4a',light:0.46},
+{p:0.85,top:'#1a1430',mid:'#3a2440',hor:'#6e3a44',light:0.18},
+{p:1.00,top:'#0b1024',mid:'#172038',hor:'#2a2c3e',light:0.06}];
+const DAY_LEN=240;
+let dnTop='#742f1f',dnMid='#c96b3e',dnHor='#efcd86',dnLight=0.82,dnPhase=0.62,dnSunUp=true,dnSunX=252,dnSunY=60,dnMoonUp=false,dnMoonX=0,dnMoonY=0,dnStar=0;
+function dayNight(){
+const p=((S.T/DAY_LEN)+0.62)%1;dnPhase=p;
+let i=0;for(let j=0;j<SKYKF.length-1;j++){if(p>=SKYKF[j].p&&p<SKYKF[j+1].p){i=j;break}}
+const a=SKYKF[i],b=SKYKF[i+1],t=(p-a.p)/(b.p-a.p);
+dnTop=lerpCol(a.top,b.top,t);dnMid=lerpCol(a.mid,b.mid,t);dnHor=lerpCol(a.hor,b.hor,t);dnLight=a.light+(b.light-a.light)*t;
+dnSunUp=p>0.2&&p<0.8;const st=Math.max(0,Math.min(1,(p-0.2)/0.6));dnSunX=-12+st*344;dnSunY=120-Math.sin(st*Math.PI)*86;
+const np=p>=0.8?(p-0.8)/0.4:(p+0.2)/0.4;dnMoonUp=!dnSunUp;dnMoonX=-12+np*344;dnMoonY=120-Math.sin(np*Math.PI)*78;
+dnStar=Math.max(0,Math.min(1,(0.34-dnLight)/0.34));
+}
+let regTimer=null;
+function setRegion(name){const el=document.getElementById('region');if(!el)return;el.textContent=name;el.style.opacity='1';clearTimeout(regTimer);regTimer=setTimeout(()=>{el.style.opacity='0'},2800)}
+function drawClouds2(dx){drawClouds(dx)}
+function drawBackdrop(){
+if(bgReady){ctx.drawImage(bgImg,0,0,320,180);return}
+const reg=Math.floor(S.off/BIOME_LEN),within=(S.off/BIOME_LEN)-reg,bs=0.84;
+blendT=within>bs?(within-bs)/(1-bs):0;curIdx=biomeIdx(reg);nextIdx=biomeIdx(reg+1);
+const cur=BIOMES[curIdx],nxt=BIOMES[nextIdx];
+computeWeather();
+dayNight();
+const wLabel=wBlend<0.5?wCur.label:wNext.label;
+if(reg!==S.lastRegion||S._wr!==S.lastWx){S.lastRegion=reg;S.lastWx=S._wr;setRegion(cur.name+(wLabel?'   ·   '+wLabel:''))}
+const wSun=wCur.sun*(1-wBlend)+wNext.sun*wBlend,hzMul=wCur.haze*(1-wBlend)+wNext.haze*wBlend;
+ctx.fillStyle=grad(0,0,0,118,[[0,dnTop],[0.5,dnMid],[1,dnHor]]);ctx.fillRect(0,0,320,118);
+if(dnStar>0.02){for(let s=0;s<46;s++){const sx=(s*61+13)%320,sy=4+((s*37)%70),tw=0.5+0.5*Math.sin(S.T*(1+(s%5)*0.4)+s);pxa(sx,sy,1,1,'rgba(240,238,255,'+(dnStar*tw*0.9)+')')}
+if(dnStar>0.3){for(let s=0;s<32;s++){const bx=((s*53+S.off*0.01)%340)-10,by=14+Math.sin(s*1.3)*7+(s%3)*2;pxa(bx,by,1,1,'rgba(198,204,236,'+(dnStar*0.28)+')')}
+const mc=Math.floor(S.T/6.5),mp=(S.T%6.5)/0.55;if(mp<1){const mx=30+(mc*53%210)+mp*120,my=16+(mc*31%28)+mp*38;pxa(mx,my,3,1,'rgba(255,250,230,'+(dnStar*(1-mp))+')');pxa(mx-3,my-1,2,1,'rgba(255,250,230,'+(dnStar*(1-mp)*0.5)+')')}}}
+if(dnSunUp){const sa=(0.32+0.6*dnLight)*wSun,sg=ctx.createRadialGradient(dnSunX,dnSunY,4,dnSunX,dnSunY,74);sg.addColorStop(0,'rgba(255,242,206,'+(0.92*sa)+')');sg.addColorStop(0.4,'rgba(250,198,118,'+(0.34*sa)+')');sg.addColorStop(1,'rgba(250,198,118,0)');ctx.fillStyle=sg;ctx.fillRect(dnSunX-80,dnSunY-80,160,160);pxa(dnSunX-4,dnSunY-4,9,9,'rgba(251,233,188,'+(0.5+0.5*sa)+')')}
+else{const ma=(0.45+0.55*(1-dnLight))*(0.6+0.4*wSun),mg=ctx.createRadialGradient(dnMoonX,dnMoonY,3,dnMoonX,dnMoonY,46);mg.addColorStop(0,'rgba(206,214,240,'+(0.5*ma)+')');mg.addColorStop(1,'rgba(206,214,240,0)');ctx.fillStyle=mg;ctx.fillRect(dnMoonX-50,dnMoonY-50,100,100);pxa(dnMoonX-3,dnMoonY-3,7,7,'rgba(226,230,244,'+ma+')');pxa(dnMoonX-1,dnMoonY-3,4,7,'rgba(150,160,190,'+(ma*0.5)+')')}
+const o0=Math.floor(S.off*0.03)%360;drawClouds(-o0);drawClouds(360-o0);
+for(let k=0;k<3;k++){const vx=(S.T*9+k*130)%380-30,vy=30+k*9+(k%2)*4,f=Math.floor(S.T*4+k)%2;pxa(vx,vy+(f?1:0),2,1,'rgba(42,28,20,0.7)');pxa(vx+2,vy+(f?0:1),2,1,'rgba(42,28,20,0.7)')}
+eachCell(0.055,108,5,(k,sx)=>{const b=BIOMES[cellBiomeIdx(k,5)];if(b.range)b.range(sx+(hash(k*331+5)-0.5)*24,hash(k*53+5))});
+eachCell(0.10,82,11,(k,sx)=>{if(hash(k*131+11)>0.7)return;const b=BIOMES[cellBiomeIdx(k,11)],jx=(hash(k*977+11)-0.5)*46;b.far(sx+jx,hash(k*53+11))});
+const HZ=h2(cur.haze),HN=h2(nxt.haze),hr=Math.round(HZ[0]+(HN[0]-HZ[0])*blendT),hg=Math.round(HZ[1]+(HN[1]-HZ[1])*blendT),hb=Math.round(HZ[2]+(HN[2]-HZ[2])*blendT);
+ctx.fillStyle=grad(0,68,0,118,[[0,'rgba('+hr+','+hg+','+hb+',0)'],[1,'rgba('+hr+','+hg+','+hb+','+Math.min(0.85,0.55*hzMul*(0.4+0.6*dnLight))+')']]);ctx.fillRect(0,68,320,50);
+const drA=0.32*dnLight+0.12;
+pxa(0,106,320,1,'rgba(58,44,32,'+drA+')');
+const rt=Math.floor(S.off*0.08)%9;for(let tx=-rt;tx<320;tx+=9)pxa(tx,105,1,2,'rgba(48,36,26,'+(drA*0.7)+')');
+for(let gt=0;gt<2;gt++){const dir=gt?1:-1;let gx=(gt*230+S.T*(7+gt*4)*dir)%480;gx=((gx%480)+480)%480-80;const gc='rgba(38,30,24,'+(0.42*dnLight+0.14)+')';pxa(gx-4,101,5,5,gc);for(let c=0;c<5;c++)pxa(gx+2+c*6,102,5,4,gc);if(Math.floor(S.T*3+gt)%2==0)pxa(gx-4,98,2,2,'rgba(70,58,48,0.22)')}
+const lwx=(reg+0.5)*BIOME_LEN-S.off*0.18;if(lwx>-50&&lwx<360)cur.land(lwx);
+const lwx2=(reg+1.5)*BIOME_LEN-S.off*0.18;if(lwx2>-50&&lwx2<360)nxt.land(lwx2);
+eachCell(0.26,64,29,(k,sx)=>{if(hash(k*131+29)>0.78)return;const b=BIOMES[cellBiomeIdx(k,29)],jx=(hash(k*977+29)-0.5)*34;b.mid(sx+jx,hash(k*53+29))});
+const g0=lerpCol(cur.ground[0],nxt.ground[0],blendT),g1=lerpCol(cur.ground[1],nxt.ground[1],blendT),g2=lerpCol(cur.ground[2],nxt.ground[2],blendT);
+ctx.fillStyle=grad(0,110,0,180,[[0,g0],[0.5,g1],[1,g2]]);ctx.fillRect(0,110,320,70);
+(blendT<0.5?cur:nxt).gtex(S.off);
+const oc=Math.floor(S.off*0.6)%340;ctx.strokeStyle='rgba(70,46,22,0.4)';ctx.lineWidth=1;
+for(const c of CRACKS){let x=(c.x-oc)%340;if(x<0)x+=340;ctx.beginPath();ctx.moveTo(x,c.y);ctx.lineTo(x+c.len*0.6,c.y+3*c.dir);ctx.lineTo(x+c.len,c.y+1);ctx.stroke()}
+eachCell(0.6,40,53,(k,sx)=>{if(hash(k*131+53)>0.72)return;const b=BIOMES[cellBiomeIdx(k,53)];b.deb(sx,hash(k*53+53))});
+eachCell(0.6,52,71,(k,sx)=>{if(hash(k*131+71)>0.5)return;const x=sx,y=150+Math.floor(hash(k*17+71)*22);for(let bb=-2;bb<=2;bb++)pxa(x+bb,y-3-(2-Math.abs(bb)),1,3+(2-Math.abs(bb)),'rgba(120,98,46,0.8)');pxa(x-2,y,5,1,'rgba(86,68,30,0.8)')});
+for(const rr of [reg,reg+1]){if(hash(rr*97+9)<0.45){const sx=(rr+0.3)*BIOME_LEN-S.off*0.6;if(sx>-40&&sx<360)storyAt(sx,Math.floor(hash(rr*61+9)*3))}}
+const o4=Math.floor(S.off*0.6)%480;drawFgWreck(-o4);drawFgWreck(480-o4);
+ambientLife(cur);
+}
+function storyAt(x,v){
+if(v==0){ctx.save();ctx.translate(x,0);ctx.rotate(-0.08);
+pxa(0,134,18,16,'#6e5a44');pxa(0,134,18,1,'#8a7458');pxa(0,134,1,16,'#4a3a2c');
+pxa(3,138,2,1,'#c2452f');pxa(6,138,5,1,'#c2452f');pxa(3,141,9,1,'#c2452f');pxa(3,144,6,1,'#c2452f');
+pxa(13,140,3,4,'#c2452f');pxa(15,141,3,1,'#c2452f');pxa(15,143,3,1,'#c2452f');ctx.restore()}
+else if(v==1){pxa(x,128,4,22,'#4a4036');pxa(x-3,134,10,3,'#5f564c');pxa(x-2,140,8,3,'#5f564c');pxa(x+1,132,3,3,'#7d8388');
+pxa(x-1,121,6,6,'#cabfa6');pxa(x,123,1,1,'#241a12');pxa(x+3,123,1,1,'#241a12');pxa(x,126,4,1,'#241a12');pxa(x-4,148,12,2,'#3a322c')}
+else{ctx.save();ctx.translate(x,150);ctx.rotate(0.2);
+box(0,-14,22,14,'#5a4f46');pxa(1,-13,20,2,'#7a6e60');pxa(3,-9,16,1,'#3a322c');
+box(3,-21,9,8,'#4a4f55');pxa(5,-19,4,3,'#9fd8d8');
+pxa(2,-2,4,3,'#241a12');pxa(14,-2,4,3,'#241a12');ctx.restore()}
+}
+function ambientLife(b){
+if(b.name=='THE RUST FLATS'){const dx=(180-S.off*0.5)%500;const ddx=dx<0?dx+500:dx;if(ddx<320){for(let s=0;s<5;s++){const wob=Math.sin(S.T*6+s)*3;pxa(ddx+wob,150-s*7,2+(s<2?1:0),3,'rgba(180,150,100,0.3)')}}}
+else if(b.name=='THE DEAD CITY'){for(let f=0;f<3;f++){const fx=((f*110+60)-S.off*0.26)%330;const fxx=fx<0?fx+330:fx;if(Math.floor(S.T*7+f)%2==0)pxa(fxx,96+f*3,2,2,'rgba(255,150,60,0.7)')}}
+else{for(let m=0;m<10;m++){const mx=(m*33+S.T*9+m*7)%320,my=(140-((S.T*14+m*30)%80));pxa(mx,my,1,1,'rgba(230,218,196,0.35)')}const bx=160+Math.cos(S.T*0.7)*90,by=44+Math.sin(S.T*0.7)*10,bf=Math.floor(S.T*5)%2;pxa(bx,by+(bf?1:0),3,1,'rgba(50,40,30,0.7)');pxa(bx+3,by+(bf?0:1),3,1,'rgba(50,40,30,0.7)')}
+}
+function drawOverlays(){
+ctx.fillStyle='rgba(184,92,40,'+(0.06*dnLight)+')';ctx.fillRect(0,0,320,180);
+if(dnLight<0.95){ctx.fillStyle='rgba(12,16,40,'+((1-dnLight)*0.44)+')';ctx.fillRect(0,0,320,180)}
+const v=ctx.createRadialGradient(160,86,44,160,86,184);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(28,11,5,0.5)');
+ctx.fillStyle=v;ctx.fillRect(0,0,320,180);
+for(let i=0;i<28;i++){const gx=(i*61+S.T*22+i*13)%320,gy=((i*37)%180+Math.sin(S.T*0.6+i)*6+180)%180;pxa(gx,gy,1,1,'rgba(240,222,184,0.12)')}
+applyWeather();
+}
+function draw(){
+ctx.setTransform(RS,0,0,RS,0,0);
+drawBackdrop();
+lane(110);
+S.smoke.forEach(s=>{const c=s.t>0.9?'#7c756c':s.t>0.5?'#a89f93':'#cfc8bc';const sz=s.t>0.7?4:s.t>0.35?3:2;px(s.x,s.y,sz,sz,c)});
+if(S.ptrain)drawPtrain();
+lane(138);
+ctx.fillStyle='rgba(24,12,6,0.22)';ctx.fillRect(16,139,294,4);
+drawTrain();
+lane(166);
+if(S.mode=='idle'){
+const tw=S.tw;
+px(tw.x,160+Math.round(Math.abs(Math.sin(S.T*7))*-4),5,5,'#a8773e');
+px(tw.x+1,161+Math.round(Math.abs(Math.sin(S.T*7))*-4),1,1,'#c9914f');px(tw.x+3,163+Math.round(Math.abs(Math.sin(S.T*7))*-4),1,1,'#c9914f');
+}
+S.raiders.forEach(drawRaider);
+if(S.boss)drawBoss();
+if(S.crate&&S.mode=='run')drawCrate();
+drawTracers();
+S.booms.forEach(b=>{const r=Math.round(b.t*18);
+px(b.x-r/2,b.y-r/2,r,r,'#b8442a');
+px(b.x-r/3,b.y-r/3,Math.max(2,Math.round(r*0.66)),Math.max(2,Math.round(r*0.66)),'#e07b2a');
+px(b.x-r/5,b.y-r/5,Math.max(2,Math.round(r*0.4)),Math.max(2,Math.round(r*0.4)),'#ffd23e');
+if(b.t<0.2)px(b.x-1,b.y-1,3,3,'#fff8e0')});
+drawOverlays();
+drawPanHint();
+if(S.mode=='run'){const bf=S.boss&&!S.boss.dead,eD=S.ptrain&&S.ptrain.elite&&!S.ptrain.dead&&S.ptrain.state!='out',bc=(bf||eD)?'#d23a2a':'#e0a33a',prog=bf?(1-Math.max(0,S.boss.hp)/S.boss.max):eD?(1-Math.max(0,S.ptrain.hp)/S.ptrain.max):(S.jt/S.dur);px(14,174,292,4,'#5a4632');px(14,174,Math.round(292*prog),4,bc);px(14,174,Math.round(292*prog),1,'#f2c560')}
+}
+function drawPanHint(){
+if(S.maxPan<=3||S.boss||S.raiders.length)return;
+const pulse=0.55+0.45*Math.sin(S.T*3.5),boost=Math.max(0,Math.min(1,S.panHintT/2)),a=(0.2+0.5*boost)*pulse;
+const chev=(tx,ty,dir)=>{for(let i=0;i<4;i++){const xx=dir<0?tx+i:tx+3-i;px(xx,ty-i,2,1,'#efe3c6');px(xx,ty+i,2,1,'#efe3c6');}};
+ctx.globalAlpha=a;
+if(S.pan<S.maxPan-2){chev(4,92,-1);chev(9,92,-1);}
+if(S.pan>2){chev(309,92,1);chev(314,92,1);}
+ctx.globalAlpha=1;
+}
+let lt=0;
+function tick(ts){
+const dt=Math.min(0.05,(ts-lt)/1000||0.016);lt=ts;S.T+=dt;S.dt=dt;
+const spd=S.mode=='run'?((S.boss&&S.boss.set&&!S.boss.dead)?0:110):14;
+S.off+=spd*dt;
+// follow-camera: hold native anchor (216) while enemies are present so turret aiming & approach distances stay calibrated; otherwise frame the whole consist
+{const cn=S.slots.length,cw=40,L=cn*(cw+4)+52,foe=S.boss||S.raiders.length>0;
+ const tEX=foe?216:Math.min(190,140-(95-L)/2);  // idle: pull train left so there's open track ahead; combat: native 216 (aiming-calibrated)
+ S.ex+=(tEX-S.ex)*Math.min(1,dt*(foe?8:2.4));
+ S.maxPan=Math.max(0,(L+10)-S.ex);
+ if(foe)S.pan+=(0-S.pan)*Math.min(1,dt*8);
+ S.pan=Math.max(0,Math.min(S.maxPan,S.pan));
+ if(S.panHintT>0)S.panHintT-=dt;}
+S.food+=farm()*dt;
+S.fuel+=oilProd()*dt;
+{const hr=crewBuffs().hullRegen;if(hr>0&&S.hull<maxHull())S.hull=Math.min(maxHull(),S.hull+hr*dt);}
+if(S.mode=='idle'&&S.hull<maxHull())S.hull=Math.min(maxHull(),S.hull+1.3*dt);
+S.smT-=dt;
+if(S.smT<=0&&!S.engineSkin){S.smoke.push({x:S.stackX,y:90,t:1.4});S.smT=S.mode=='run'?0.08:0.35}
+S.smoke.forEach(s=>{s.t-=dt;s.x-=(spd*0.32)*dt;s.y-=9*dt});
+S.smoke=S.smoke.filter(s=>s.t>0&&s.x>-5);
+if(S.flash>0)S.flash-=dt;
+S.raiders.forEach(r=>{r.x+=r.v*dt;r.life-=dt;if(r.life<=0){S.booms.push({x:r.x+8,y:156,t:0.1});r.dead=true}});
+S.raiders=S.raiders.filter(r=>!r.dead);
+S.booms.forEach(b=>b.t+=dt);
+S.booms=S.booms.filter(b=>b.t<0.6);
+S.tracers.forEach(p=>{
+p.x+=p.vx*dt;p.y+=p.vy*dt;if(p.g)p.vy+=p.g*dt;p.life-=dt;
+if(p.k=='rocket'){p.st-=dt;if(p.st<=0){S.smoke.push({x:p.x-2,y:p.y+1,t:0.6});p.st=0.04}}
+let done=p.life<=0||p.x<-10||p.x>340;
+if(p.k=='cannon'&&((p.vx>=0&&p.x>=p.tx)||(p.vx<0&&p.x<=p.tx)))done=true;
+if(p.k=='rocket'&&Math.hypot(p.x-p.tx,p.y-p.ty)<16)done=true;
+if(p.k=='mortar'&&p.vy>0&&p.y>=p.ty)done=true;
+if(done){p.dead=true;
+const bs=p.k=='cannon'?0.14:0.26;S.booms.push({x:p.x,y:Math.min(p.y,158),t:bs});
+if(!p.bh){const r=nearRaider(p.x);if(r&&Math.abs(r.x+8-p.x)<24){r.dead=true;S.booms.push({x:r.x+8,y:156,t:0.1})}}
+}
+});
+S.tracers=S.tracers.filter(p=>!p.dead);
+if(S.mode=='idle'){S.tw.x-=28*dt;if(S.tw.x<-8)S.tw.x=340+Math.random()*220}
+if(S.mode=='run'){const _eD=S.ptrain&&S.ptrain.elite&&!S.ptrain.dead&&S.ptrain.state!='out';if(!((S.boss&&!S.boss.dead)||_eD))S.jt+=dt;
+if(repairRate()>0&&S.hull<maxHull())S.hull=Math.min(maxHull(),S.hull+repairRate()*dt);
+const boss=S.boss;
+if(boss&&!boss.dead){
+boss.x+=(boss.tx-boss.x)*Math.min(1,dt*1.7);
+if(!boss.set&&boss.x-boss.tx<6){boss.set=true;log('You throw the brakes \u2014 both rigs grind to a dead stop on the line. Trade fire until one is scrap.')}
+const dps=gun()+troops()*1.5;boss.hp-=dps*dt;if(dps>0&&S.flash<0.3)S.flash=0.3;
+boss.hitT-=dt;
+if(boss.hitT<=0){boss.hitT=1.7;const dmg=Math.max(2,Math.round((7+S.journeys*2-troops()*0.5)*(1+(boss.guns||0)*0.25)));hurt(dmg);S.flash=1.3;S.booms.push({x:210,y:128,t:0.1});
+if(S.hull<=0)bossEscape();}
+if(S.boss&&S.boss.hp<=0)bossKill();
+}
+if(!S.boss){
+if(S.wi<S.waves.length&&S.jt>=S.waves[S.wi]){S.wi++;wave()}
+if(S.crateAt>0&&S.jt>=S.crateAt&&!S.crate){S.crate={x:340,y:150,grabbed:false};S.crateAt=-1}
+if(S.ptrainAt>0&&S.jt>=S.ptrainAt&&!S.ptrain){if(S.ptrainElite){const guns=Math.min(3,2+Math.floor(S.journeys/14)),wp=['cannon','rocket','mortar'],cars=[];for(let g=0;g<guns;g++)cars.push({wpn:wp[g%3]});const m=Math.round((42+S.journeys*15)*(1+guns*0.25));S.ptrain={kind:'raider',elite:true,cars,guns,x:-96,state:'in',t:0,gave:false,atkT:1.2,muzzle:0,hp:m,max:m,dead:false};log('A heavy raider convoy thunders onto the parallel rail \u2014 ELITE WARBAND, guns bristling. Outshoot them or die on the line.')}else{const m=Math.round(30+S.journeys*10);S.ptrain={kind:S.ptrainKind,x:-64,state:'in',t:0,gave:false,atkT:1.0,muzzle:0,hp:m,max:m,dead:false};log(S.ptrainKind=='trader'?'A survivor train eases onto the parallel rail — they signal peace.':'A raider train swings onto the parallel rail, guns up!')}S.ptrainAt=-1}
+}
+const pt=S.ptrain;
+if(pt){pt.t+=dt;if(pt.muzzle>0)pt.muzzle-=dt;
+if(pt.state=='in'){pt.x+=128*dt;if(pt.x>=150){pt.x=150;pt.state='pace';pt.t=0}}
+else if(pt.state=='pace'){pt.x+=Math.sin(S.T*1.5)*5*dt;
+if(pt.kind=='trader'){if(!pt.gave&&pt.t>0.9){pt.gave=true;S.booms.push({x:pt.x+18,y:132,t:0.1});if(Math.random()<0.22){log('A wanderer rides the trader car across to your rig...');recruitHero('wander')}else{const sc=Math.round(20+S.journeys*12),fd=4+Math.floor(Math.random()*4);S.scrap+=sc;S.food+=fd;log('The traders toss across supplies — +'+sc+' scrap, +'+fd+' food. They wave and pull ahead.')}}if(pt.t>2.6)pt.state='out'}
+else{const dps=gun()+troops()*1.5;pt.hp-=dps*dt*0.85;if(dps>0&&S.flash<0.3)S.flash=0.3;
+pt.atkT-=dt;if(pt.atkT<=0){pt.atkT=pt.elite?1.1:1.4;pt.muzzle=0.18;const dmg=pt.elite?Math.max(2,Math.round((6+S.journeys*1.5-troops()*0.4)*(1+(pt.guns||0)*0.2))):Math.max(1,Math.round(4+S.journeys-troops()*0.4));hurt(dmg);S.flash=1.0;S.booms.push({x:165,y:126,t:0.08});if(S.hull<=0){const r=Math.round(base()*0.25);S.scrap+=r;S.hull=Math.round(maxHull()*0.4);S.ptrain=null;S.mode='idle';S.raiders=[];S.tracers=[];log((pt.elite?'The elite warband raked your rig apart':'The raider train shot your boiler out')+' — you limp home with '+r+' scrap.');cards();save()}}
+if(S.ptrain&&pt.hp<=0){if(pt.elite){const r=Math.round(base()*1.6*crewBuffs().scrapMult);S.scrap+=r;for(let i=0;i<8;i++)S.booms.push({x:pt.x+i*8,y:96+(i%3)*6,t:0.04+i*0.05});log('ELITE WARBAND WRECKED! You strip the convoy for '+r+' scrap as it derails in flames.');if(Math.random()<0.5)recruitHero('war');else{const b=Math.round(25+S.journeys*7);S.scrap+=b;log('You salvage another '+b+' scrap from the burning cars.')}}else{const r=Math.round(base()*0.8);S.scrap+=r;for(let i=0;i<5;i++)S.booms.push({x:pt.x+i*9,y:98+(i%2)*6,t:0.05+i*0.05});log('Raider train wrecked! You strip it for '+r+' scrap as it derails.')}pt.dead=true;pt.state='out'}
+else if(S.ptrain&&!pt.elite&&pt.t>3.6&&pt.state=='pace'){pt.state='out';log('The raider train breaks off and falls behind.')}}}
+else if(pt.state=='out'){pt.x+=(pt.dead?70:165)*dt;if(pt.x>384)S.ptrain=null}}
+if(S.crate){S.crate.x-=80*dt;if(S.crate.x<-16)S.crate=null}
+if(S.mode=='run'&&!S.boss&&S.jt>=S.dur)finish();
+}
+S.saveT+=dt;
+if(S.saveT>15&&S.mode=='idle'){S.saveT=0;save()}
+draw();upd();
+requestAnimationFrame(tick);
+}
+(async function(){
+const loaded=await load();
+if(loaded)log('Save recovered. Your rig idles where you left it — '+S.journeys+' crossings logged.');
+else log('The wastes are quiet. Upgrade your rig, then depart.');
+if(!S.layoutManual)autoLayout();
+applyLayout();
+applyImmersive();
+cards();showView('travel');
+requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
