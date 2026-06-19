@@ -169,7 +169,7 @@
   .cab__body{padding:14px 6px 4px}
   .cab__title{font-family:var(--display); font-weight:700; font-size:1.32rem; letter-spacing:.01em}
   .cab__line{color:var(--muted); font-size:.95rem; margin-top:5px; min-height:2.7em}
-  .cab__foot{display:flex; align-items:center; justify-content:space-between; margin-top:14px}
+  .cab__foot{display:flex; align-items:center; justify-content:space-between; gap:8px 10px; flex-wrap:wrap; margin-top:14px}
   .pill{font-family:var(--pixel); font-size:8px; letter-spacing:1px; padding:6px 9px; border-radius:4px;
     color:var(--amber); background:rgba(240,207,134,.08); border:1px solid var(--line)}
   .pill--live{color:#bfe6a8; background:rgba(120,200,120,.1); border-color:rgba(120,200,120,.25)}
@@ -177,7 +177,7 @@
   .cab__link:hover{color:var(--amber)}
   .cab--soon .cab__link{color:var(--muted); pointer-events:none}
   /* ---- thumbs-up votes ---- */
-  .cab__actions{display:flex; align-items:center; gap:12px}
+  .cab__cta{display:inline-flex; align-items:center; margin-top:12px}
   .vote{position:relative; display:inline-flex; align-items:center; gap:7px; cursor:pointer;
     font-family:var(--pixel); font-size:9px; letter-spacing:.5px; color:var(--dust);
     background:rgba(240,207,134,.06); border:1px solid var(--line); border-radius:999px;
@@ -343,11 +343,9 @@
           <p class="cab__line">I can't be the only one who's daydreamed about battle trains in the apocalypse. Right? …Right?</p>
           <div class="cab__foot">
             <span class="pill pill--live">● In development</span>
-            <div class="cab__actions">
-              <a class="cab__link" href="play.html">Peek inside →</a>
-              <button class="vote" type="button" data-game="ironline" aria-pressed="false" aria-label="Like IRONLINE"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
-            </div>
+            <button class="vote" type="button" data-game="ironline" aria-pressed="false" aria-label="Like IRONLINE"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
+          <a class="cab__link cab__cta" href="play.html">Peek inside →</a>
         </div>
       </article>
 
