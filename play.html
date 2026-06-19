@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>What If Arcade — Insert Coin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#0e0b16; --night2:#070510; --dusk:#1c1530; --dusk2:#281b3c;
+    --rust:#d2743f; --rust-deep:#8a3a28; --amber:#f0cf86; --cream:#f6e7c4;
+    --dust:#c98f4a; --teal:#9fd8d8; --muted:#6b5a44;
+    --display:'Bricolage Grotesque',system-ui,sans-serif;
+    --body:'Inter',system-ui,sans-serif;
+    --pixel:'Press Start 2P',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:radial-gradient(120% 90% at 50% 30%,var(--night),var(--night2));
+    color:var(--cream); font-family:var(--body);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:30px; padding:40px 24px; overflow:hidden; cursor:pointer;
+    -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+  }
+  a{color:inherit; text-decoration:none}
+
+  /* ---- back to arcade ---- */
+  .back{
+    position:fixed; top:18px; left:20px; z-index:20;
+    font-family:var(--pixel); font-size:8px; letter-spacing:2px;
+    color:var(--muted); transition:color .2s; cursor:pointer;
+  }
+  .back:hover{color:var(--amber)}
+
+  /* ---- master one-shot boot cycle (plays once, holds on marquee) ---- */
+  @keyframes boot-paw{0%{opacity:0;transform:scale(.8)}7%{opacity:1;transform:scale(1)}26%{opacity:1;transform:scale(1)}35%{opacity:0;transform:scale(1.07)}100%{opacity:0;transform:scale(1.07)}}
+  @keyframes boot-nood{0%{opacity:0}12%{opacity:0}17%{opacity:.85}26%{opacity:.85}34%{opacity:0}100%{opacity:0}}
+  @keyframes boot-glint{0%{opacity:0;transform:translateX(-130%) skewX(-18deg)}10%{opacity:0;transform:translateX(-130%) skewX(-18deg)}14%{opacity:.85}21%{opacity:0;transform:translateX(130%) skewX(-18deg)}100%{opacity:0;transform:translateX(130%) skewX(-18deg)}}
+  @keyframes boot-line{0%{opacity:0;transform:scaleX(.15) scaleY(1)}36%{opacity:0;transform:scaleX(.15) scaleY(1)}40%{opacity:1;transform:scaleX(1) scaleY(1)}43%{opacity:1;transform:scaleX(1) scaleY(1)}48%{opacity:0;transform:scaleX(1) scaleY(70)}100%{opacity:0;transform:scaleX(1) scaleY(70)}}
+  @keyframes boot-screen{0%{opacity:0}42%{opacity:0}55%{opacity:1}100%{opacity:1}}
+  @keyframes boot-logo{0%{opacity:0;transform:scale(.95)}45%{opacity:0;transform:scale(.95)}57%{opacity:1;transform:scale(1)}100%{opacity:1;transform:scale(1)}}
+  @keyframes boot-presents{0%{opacity:0}58%{opacity:0}66%{opacity:.8}100%{opacity:.8}}
+  @keyframes boot-tag{0%{opacity:0}66%{opacity:0}76%{opacity:.95}100%{opacity:.95}}
+  @keyframes boot-blink{0%,100%{opacity:.25}50%{opacity:1}}
+  @keyframes boot-flick{0%,100%{opacity:.5}48%{opacity:.32}52%{opacity:.55}}
+  @keyframes boot-fadein{from{opacity:0}to{opacity:1}}
+
+  /* page-exit wipe when the player inserts a coin */
+  #wipe{position:fixed;inset:0;background:var(--night2);opacity:0;pointer-events:none;
+    transition:opacity .45s ease;z-index:99}
+  body.go #wipe{opacity:1;pointer-events:auto}
+
+  .stage{animation:boot-fadein .6s ease both}
+  .coinhint{font-family:var(--pixel);font-size:9px;letter-spacing:2px;color:var(--dust);opacity:.7}
+  @media(max-width:560px){.coinhint{font-size:8px;letter-spacing:1px}}
+</style>
+</head>
+<body>
+  <a class="back" href="index.html" aria-label="Back to the arcade">← ARCADE</a>
+
+  <div class="stage" style="display:flex;flex-direction:column;align-items:center;gap:28px">
+
+    <div class="coinhint">INSERT COIN TO BEGIN · IRONLINE</div>
+
+    <!-- CABINET SCREEN -->
+    <div style="position:relative;width:min(90vw,860px);aspect-ratio:16/10;border-radius:22px;padding:18px;background:linear-gradient(180deg,#241a30,#140e1e);box-shadow:0 30px 80px rgba(0,0,0,0.6),inset 0 2px 0 rgba(246,231,196,0.08)">
+      <div style="position:absolute;top:9px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P';font-size:7px;color:#6b5a44;letter-spacing:2px">W I A · C R T - 1</div>
+      <div style="position:relative;width:100%;height:100%;border-radius:12px;overflow:hidden;background:#0e0b16;box-shadow:inset 0 0 60px rgba(0,0,0,0.8)">
+
+        <!-- arcade screen glow (phase 2) -->
+        <div style="position:absolute;inset:0;background:radial-gradient(120% 130% at 50% 120%,#d2743f 0%,#8a3a28 24%,#281b3c 56%,#0e0b16 84%);animation:boot-screen 4s ease-in-out forwards"></div>
+
+        <!-- PHASE 1: NOODLE PAW -->
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px">
+          <div style="position:relative;width:170px;height:170px;border-radius:50%;overflow:hidden;animation:boot-paw 4s ease-in-out forwards">
+            <svg width="170" height="170" viewBox="0 0 100 100" style="filter:drop-shadow(0 0 16px rgba(240,207,134,0.5))">
+              <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e7c4"></stop><stop offset="0.5" stop-color="#f0cf86"></stop><stop offset="1" stop-color="#c98f4a"></stop></linearGradient></defs>
+              <circle cx="50" cy="50" r="46" fill="none" stroke="url(#bg)" stroke-width="1.4" opacity="0.55"></circle>
+              <g fill="url(#bg)"><ellipse cx="34" cy="46" rx="5.5" ry="7.5" transform="rotate(-18 34 46)"></ellipse><ellipse cx="45" cy="38" rx="5.5" ry="8"></ellipse><ellipse cx="56" cy="38" rx="5.5" ry="8"></ellipse><ellipse cx="67" cy="46" rx="5.5" ry="7.5" transform="rotate(18 67 46)"></ellipse><path d="M50 52 C 37 52 29 62 33 70 C 37 78 46 76 50 71 C 54 76 63 78 67 70 C 71 62 63 52 50 52 Z"></path></g>
+            </svg>
+            <div style="position:absolute;top:0;bottom:0;left:0;width:46px;background:linear-gradient(90deg,transparent,rgba(255,248,224,0.85),transparent);animation:boot-glint 4s ease-in-out forwards"></div>
+          </div>
+          <div style="font-family:'Press Start 2P';font-size:10px;letter-spacing:3px;color:#f0cf86;animation:boot-nood 4s ease-in-out forwards">NOODLE STUDIOS</div>
+        </div>
+
+        <!-- PHASE 1.5: CRT POWER-ON LINE -->
+        <div style="position:absolute;left:8%;right:8%;top:50%;height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,#f6e7c4,#fff,#f6e7c4,transparent);box-shadow:0 0 18px rgba(246,231,196,0.9);transform-origin:center;animation:boot-line 4s ease-in-out forwards"></div>
+
+        <!-- PHASE 2: ARCADE MARQUEE (holds) -->
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;animation:boot-logo 4s ease-in-out forwards">
+          <div style="font-family:'Press Start 2P';font-size:8px;letter-spacing:2px;color:#f0cf86;margin-bottom:20px;animation:boot-presents 4s ease-in-out forwards">NOODLE STUDIOS PRESENTS</div>
+          <div style="display:flex;align-items:center;gap:clamp(12px,1.9vw,20px)">
+            <div style="width:clamp(22px,3.4vw,38px);aspect-ratio:1;border-radius:50%;background:radial-gradient(60% 60% at 50% 38%,#fbe7b6,#f0cf86 72%,#e6bf72);box-shadow:inset 0 1px 2px rgba(255,255,255,0.55)"></div>
+            <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:clamp(30px,5.4vw,60px);line-height:0.94;letter-spacing:-0.03em;color:#f6e7c4;text-shadow:0 0 24px rgba(240,207,134,0.25)">What If Arcade<span style="color:#d2743f">.</span></div>
+          </div>
+          <div style="font-family:'Bricolage Grotesque';font-weight:500;font-size:clamp(15px,2.1vw,22px);color:#f0cf86;margin-top:18px;animation:boot-tag 4s ease-in-out forwards">The games you wish existed.</div>
+          <div style="font-family:'Press Start 2P';font-size:9px;letter-spacing:2px;color:#9fd8d8;margin-top:26px;animation:boot-blink 1.1s steps(1,end) infinite">INSERT COIN</div>
+        </div>
+
+        <!-- scanlines + vignette -->
+        <div style="position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.18) 0px,rgba(0,0,0,0.18) 1px,transparent 1px,transparent 3px);animation:boot-flick 5s ease-in-out infinite"></div>
+        <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 100% at 50% 50%,transparent 60%,rgba(0,0,0,0.55) 100%)"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="wipe"></div>
+
+<script>
+  // Insert a coin → wipe to black → board IRONLINE.
+  // Click / tap / any key works, so the intro is always skippable.
+  var GAME = "battle-train-hd.html";
+  var launched = false;
+  function insertCoin(){
+    if (launched) return;
+    launched = true;
+    document.body.classList.add('go');
+    setTimeout(function(){ window.location.href = GAME; }, 460);
+  }
+  // Don't let the "← ARCADE" link trigger a coin-insert.
+  document.querySelector('.back').addEventListener('click', function(e){ e.stopPropagation(); });
+  document.body.addEventListener('click', insertCoin);
+  document.body.addEventListener('touchend', function(e){ e.preventDefault(); insertCoin(); }, {passive:false});
+  window.addEventListener('keydown', function(e){
+    if (e.key === 'Tab') return;            // keep keyboard nav to the back link usable
+    insertCoin();
+  });
+</script>
+</body>
+</html>
