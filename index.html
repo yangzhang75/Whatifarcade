@@ -177,7 +177,7 @@
   .cab__link:hover{color:var(--amber)}
   .cab--soon .cab__link{color:var(--muted); pointer-events:none}
   /* ---- thumbs-up votes ---- */
-  .cab__cta{display:inline-flex; align-items:center; margin-top:12px}
+  .cab__rate{display:flex; align-items:center; margin-top:13px; padding-top:12px; border-top:1px solid var(--line)}
   .vote{position:relative; display:inline-flex; align-items:center; gap:7px; cursor:pointer;
     font-family:var(--pixel); font-size:9px; letter-spacing:.5px; color:var(--dust);
     background:rgba(240,207,134,.06); border:1px solid var(--line); border-radius:999px;
@@ -343,9 +343,11 @@
           <p class="cab__line">I can't be the only one who's daydreamed about battle trains in the apocalypse. Right? …Right?</p>
           <div class="cab__foot">
             <span class="pill pill--live">● In development</span>
+            <a class="cab__link" href="play.html">Peek inside →</a>
+          </div>
+          <div class="cab__rate">
             <button class="vote" type="button" data-game="ironline" aria-pressed="false" aria-label="Like IRONLINE"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
-          <a class="cab__link cab__cta" href="play.html">Peek inside →</a>
         </div>
       </article>
 
@@ -357,6 +359,8 @@
           <p class="cab__line">Catch the wind, mind the boom — Megan's maiden voyage.</p>
           <div class="cab__foot">
             <span class="pill">In the workshop</span>
+          </div>
+          <div class="cab__rate">
             <button class="vote" type="button" data-game="sailing" aria-pressed="false" aria-label="Like the sailing game"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -369,6 +373,8 @@
           <p class="cab__line">Because you can never really have enough pixel war.</p>
           <div class="cab__foot">
             <span class="pill">In the workshop</span>
+          </div>
+          <div class="cab__rate">
             <button class="vote" type="button" data-game="pixelwar" aria-pressed="false" aria-label="Like more pixel war"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -381,6 +387,8 @@
           <p class="cab__line">Details pending. Grimdark guaranteed.</p>
           <div class="cab__foot">
             <span class="pill">In the workshop</span>
+          </div>
+          <div class="cab__rate">
             <button class="vote" type="button" data-game="warhammer" aria-pressed="false" aria-label="Like the Warhammer game"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -393,6 +401,8 @@
           <p class="cab__line">Starring the goodest boy. Twenty years in the making.</p>
           <div class="cab__foot">
             <span class="pill">In the workshop</span>
+          </div>
+          <div class="cab__rate">
             <button class="vote" type="button" data-game="noodle" aria-pressed="false" aria-label="Like the Noodle game"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -405,6 +415,8 @@
           <p class="cab__line">Feed the fish, name the fish, watch the ripples. Pure pond zen.</p>
           <div class="cab__foot">
             <span class="pill">In the workshop</span>
+          </div>
+          <div class="cab__rate">
             <button class="vote" type="button" data-game="koi" aria-pressed="false" aria-label="Like Koi Fish Pond Simulator"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
