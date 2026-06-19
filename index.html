@@ -176,6 +176,27 @@
   .cab__link{font-family:var(--pixel); font-size:9px; color:var(--rust); transition:color .2s}
   .cab__link:hover{color:var(--amber)}
   .cab--soon .cab__link{color:var(--muted); pointer-events:none}
+  /* ---- thumbs-up votes ---- */
+  .cab__actions{display:flex; align-items:center; gap:12px}
+  .vote{position:relative; display:inline-flex; align-items:center; gap:7px; cursor:pointer;
+    font-family:var(--pixel); font-size:9px; letter-spacing:.5px; color:var(--dust);
+    background:rgba(240,207,134,.06); border:1px solid var(--line); border-radius:999px;
+    padding:6px 11px 6px 9px; transition:color .2s, border-color .2s, background .2s, transform .12s, box-shadow .25s}
+  .vote:hover{color:var(--amber); border-color:rgba(240,207,134,.32); background:rgba(240,207,134,.1)}
+  .vote:active{transform:scale(.94)}
+  .vote:focus-visible{outline:2px solid var(--amber); outline-offset:2px}
+  .vote__ic{width:15px; height:15px; fill:currentColor; flex:none; transition:transform .2s}
+  .vote__n{min-width:1ch; text-align:left; line-height:1}
+  .vote.is-voted{color:var(--rust); border-color:var(--rust-deep); background:rgba(210,116,63,.14);
+    box-shadow:0 0 16px rgba(210,116,63,.18)}
+  .vote.is-voted .vote__ic{transform:translateY(-1px)}
+  .vote.pop .vote__ic{animation:votepop .42s cubic-bezier(.2,.8,.3,1.4)}
+  @keyframes votepop{0%{transform:scale(1)}45%{transform:scale(1.35) rotate(-9deg)}100%{transform:scale(1)}}
+  .vote__fly{position:absolute; left:50%; top:-3px; transform:translateX(-50%); font-family:var(--pixel); font-size:9px;
+    color:var(--amber); pointer-events:none; opacity:0; white-space:nowrap}
+  .vote__fly.go{animation:votefly .72s ease-out forwards}
+  @keyframes votefly{0%{opacity:0; transform:translate(-50%,0)}22%{opacity:1}100%{opacity:0; transform:translate(-50%,-24px)}}
+  @media(prefers-reduced-motion:reduce){.vote.pop .vote__ic{animation:none} .vote__fly.go{animation:none}}
 
   /* ---------- about the studios ---------- */
   .studios{padding:6px 0 124px; background:var(--night)}
@@ -248,7 +269,8 @@
 </g>
 <circle cx="32" cy="32" r="27" fill="none" stroke="#F0CF86" stroke-width="0.8"/>
 <circle cx="32" cy="32" r="30" fill="none" stroke="#8A3A28" stroke-width="0.8"/>
-</symbol></defs></svg>
+</symbol>
+<symbol id="thumb" viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></symbol></defs></svg>
 
 <nav class="nav" id="nav">
   <div class="brand"><span class="navdot"></span><span class="wm">What If Arcade<span class="dot">.</span></span></div>
@@ -321,7 +343,10 @@
           <p class="cab__line">I can't be the only one who's daydreamed about battle trains in the apocalypse. Right? …Right?</p>
           <div class="cab__foot">
             <span class="pill pill--live">● In development</span>
-            <a class="cab__link" href="play.html">Peek inside →</a>
+            <div class="cab__actions">
+              <a class="cab__link" href="play.html">Peek inside →</a>
+              <button class="vote" type="button" data-game="ironline" aria-pressed="false" aria-label="Like IRONLINE"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
+            </div>
           </div>
         </div>
       </article>
@@ -332,7 +357,10 @@
         <div class="screen screen--card"><span class="titlecard">Game for Megan to practice Sailing</span></div>
         <div class="cab__body">
           <p class="cab__line">Catch the wind, mind the boom — Megan's maiden voyage.</p>
-          <div class="cab__foot"><span class="pill">In the workshop</span></div>
+          <div class="cab__foot">
+            <span class="pill">In the workshop</span>
+            <button class="vote" type="button" data-game="sailing" aria-pressed="false" aria-label="Like the sailing game"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
+          </div>
         </div>
       </article>
 
@@ -341,7 +369,10 @@
         <div class="screen screen--card"><span class="titlecard">Even more pixel war</span></div>
         <div class="cab__body">
           <p class="cab__line">Because you can never really have enough pixel war.</p>
-          <div class="cab__foot"><span class="pill">In the workshop</span></div>
+          <div class="cab__foot">
+            <span class="pill">In the workshop</span>
+            <button class="vote" type="button" data-game="pixelwar" aria-pressed="false" aria-label="Like more pixel war"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
+          </div>
         </div>
       </article>
 
@@ -350,7 +381,10 @@
         <div class="screen screen--card"><span class="titlecard">Something about Warhammer 100%</span></div>
         <div class="cab__body">
           <p class="cab__line">Details pending. Grimdark guaranteed.</p>
-          <div class="cab__foot"><span class="pill">In the workshop</span></div>
+          <div class="cab__foot">
+            <span class="pill">In the workshop</span>
+            <button class="vote" type="button" data-game="warhammer" aria-pressed="false" aria-label="Like the Warhammer game"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
+          </div>
         </div>
       </article>
 
@@ -359,7 +393,10 @@
         <div class="screen screen--card"><span class="titlecard">A game about Noodle, duh</span></div>
         <div class="cab__body">
           <p class="cab__line">Starring the goodest boy. Twenty years in the making.</p>
-          <div class="cab__foot"><span class="pill">In the workshop</span></div>
+          <div class="cab__foot">
+            <span class="pill">In the workshop</span>
+            <button class="vote" type="button" data-game="noodle" aria-pressed="false" aria-label="Like the Noodle game"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
+          </div>
         </div>
       </article>
 
@@ -368,7 +405,10 @@
         <div class="screen screen--card"><span class="titlecard">Koi Fish Pond Simulator</span></div>
         <div class="cab__body">
           <p class="cab__line">Feed the fish, name the fish, watch the ripples. Pure pond zen.</p>
-          <div class="cab__foot"><span class="pill">In the workshop</span></div>
+          <div class="cab__foot">
+            <span class="pill">In the workshop</span>
+            <button class="vote" type="button" data-game="koi" aria-pressed="false" aria-label="Like Koi Fish Pond Simulator"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
+          </div>
         </div>
       </article>
     </div>
@@ -470,6 +510,56 @@
     timers.push(setTimeout(function(){ answer.innerHTML=AMBIENT; }, 6000));
     input.value=''; input.blur();
   });
+
+  // ---- thumbs-up votes ----
+  // ▸ Paste your Votes Apps Script Web App URL here for shared, persistent counts (see SETUP-votes.md):
+  var VOTE_ENDPOINT = "";
+  (function(){
+    var votes = Array.prototype.slice.call(document.querySelectorAll('.vote'));
+    if(!votes.length) return;
+    function lsGet(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } }
+    function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(_){} }
+    function nEl(btn){ return btn.querySelector('.vote__n'); }
+    function getN(btn){ return parseInt(nEl(btn).textContent,10)||0; }
+    function setN(btn,n){ nEl(btn).textContent = n>0?n:0; }
+    // pressed state + per-browser fallback (until the shared counts load)
+    votes.forEach(function(btn){
+      if(lsGet('wia_voted_'+btn.getAttribute('data-game'))==='1'){
+        btn.classList.add('is-voted'); btn.setAttribute('aria-pressed','true'); setN(btn,1);
+      }
+    });
+    // shared counts via JSONP (a read works cross-origin where a no-cors POST can't)
+    if(VOTE_ENDPOINT){
+      window.__wiaVotes = function(data){
+        if(!data) return;
+        votes.forEach(function(btn){
+          var g=btn.getAttribute('data-game');
+          if(typeof data[g]==='number') setN(btn, data[g]);
+        });
+      };
+      var s=document.createElement('script');
+      s.src=VOTE_ENDPOINT+(VOTE_ENDPOINT.indexOf('?')<0?'?':'&')+'callback=__wiaVotes&t='+Date.now();
+      document.body.appendChild(s);
+    }
+    function fly(btn,txt){
+      var f=document.createElement('span'); f.className='vote__fly'; f.textContent=txt; btn.appendChild(f);
+      requestAnimationFrame(function(){ f.classList.add('go'); });
+      setTimeout(function(){ if(f.parentNode) f.parentNode.removeChild(f); }, 760);
+    }
+    votes.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var g=btn.getAttribute('data-game');
+        var nv=!btn.classList.contains('is-voted'), delta=nv?1:-1;
+        btn.classList.toggle('is-voted', nv);
+        btn.setAttribute('aria-pressed', nv?'true':'false');
+        lsSet('wia_voted_'+g, nv?'1':'0');
+        setN(btn, getN(btn)+delta);
+        btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
+        fly(btn, nv?'+1':'−1');
+        if(VOTE_ENDPOINT){ try{ fetch(VOTE_ENDPOINT,{method:'POST',mode:'no-cors',body:new URLSearchParams({type:'vote',game:g,delta:String(delta),ref:location.href,ts:new Date().toISOString()})}); }catch(_){} }
+      });
+    });
+  })();
 })();
 </script>
 </body>
