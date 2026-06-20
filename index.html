@@ -183,7 +183,7 @@
     font-family:var(--pixel); font-size:9px; letter-spacing:.5px; color:var(--dust)}
   .coins__ic{width:15px; height:15px; flex:none; filter:drop-shadow(0 0 5px rgba(240,207,134,.32))}
   .coins__n{color:var(--amber); min-width:1ch; font-variant-numeric:tabular-nums}
-  .coins__lbl{color:var(--muted); font-size:8px; letter-spacing:.5px}
+  .coins__lbl{color:var(--dust); font-size:8px; letter-spacing:1px}
   .coins.bump .coins__ic{animation:coinbump .5s cubic-bezier(.2,.8,.3,1.4)}
   @keyframes coinbump{0%{transform:translateY(0) rotate(0)}40%{transform:translateY(-3px) rotate(-12deg)}100%{transform:translateY(0) rotate(0)}}
   .vote{position:relative; display:inline-flex; align-items:center; gap:7px; cursor:pointer;
@@ -354,7 +354,7 @@
             <a class="cab__link" href="play.html">Peek inside →</a>
           </div>
           <div class="cab__rate">
-            <span class="coins" data-game="ironline" aria-label="IRONLINE coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
+            <span class="coins" data-game="ironline" aria-label="IRONLINE credits"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__lbl">CREDITS</span><span class="coins__n">0</span></span>
             <button class="vote" type="button" data-game="ironline" aria-pressed="false" aria-label="Like IRONLINE"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -372,7 +372,7 @@
             <a class="cab__link" href="firefly-jar.html">Peek inside →</a>
           </div>
           <div class="cab__rate">
-            <span class="coins" data-game="firefly" aria-label="Firefly Jar coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
+            <span class="coins" data-game="firefly" aria-label="Firefly Jar credits"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__lbl">CREDITS</span><span class="coins__n">0</span></span>
             <button class="vote" type="button" data-game="firefly" aria-pressed="false" aria-label="Like Firefly Jar"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -388,7 +388,7 @@
             <span class="pill">In the workshop</span>
           </div>
           <div class="cab__rate">
-            <span class="coins" data-game="sailing" aria-label="Sailing game coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
+            <span class="coins" data-game="sailing" aria-label="Sailing game credits"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__lbl">CREDITS</span><span class="coins__n">0</span></span>
             <button class="vote" type="button" data-game="sailing" aria-pressed="false" aria-label="Like the sailing game"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -403,7 +403,7 @@
             <span class="pill">In the workshop</span>
           </div>
           <div class="cab__rate">
-            <span class="coins" data-game="pixelwar" aria-label="Pixel war coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
+            <span class="coins" data-game="pixelwar" aria-label="Pixel war credits"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__lbl">CREDITS</span><span class="coins__n">0</span></span>
             <button class="vote" type="button" data-game="pixelwar" aria-pressed="false" aria-label="Like more pixel war"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -418,7 +418,7 @@
             <span class="pill">In the workshop</span>
           </div>
           <div class="cab__rate">
-            <span class="coins" data-game="warhammer" aria-label="Warhammer game coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
+            <span class="coins" data-game="warhammer" aria-label="Warhammer game credits"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__lbl">CREDITS</span><span class="coins__n">0</span></span>
             <button class="vote" type="button" data-game="warhammer" aria-pressed="false" aria-label="Like the Warhammer game"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -433,7 +433,7 @@
             <span class="pill">In the workshop</span>
           </div>
           <div class="cab__rate">
-            <span class="coins" data-game="noodle" aria-label="Noodle game coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
+            <span class="coins" data-game="noodle" aria-label="Noodle game credits"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__lbl">CREDITS</span><span class="coins__n">0</span></span>
             <button class="vote" type="button" data-game="noodle" aria-pressed="false" aria-label="Like the Noodle game"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -448,7 +448,7 @@
             <span class="pill">In the workshop</span>
           </div>
           <div class="cab__rate">
-            <span class="coins" data-game="koi" aria-label="Koi Fish Pond Simulator coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
+            <span class="coins" data-game="koi" aria-label="Koi Fish Pond Simulator credits"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__lbl">CREDITS</span><span class="coins__n">0</span></span>
             <button class="vote" type="button" data-game="koi" aria-pressed="false" aria-label="Like Koi Fish Pond Simulator"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
