@@ -139,12 +139,15 @@
   .arcade__head{display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:46px; flex-wrap:wrap}
   .arcade__head h2{font-family:var(--display); font-weight:700; font-size:clamp(1.9rem,4.4vw,3.1rem); letter-spacing:-.02em; line-height:1}
   .arcade__head p{color:var(--muted); max-width:34ch}
-  .shelf{display:grid; grid-template-columns:repeat(auto-fill,minmax(266px,1fr)); gap:24px}
+  .shelf{display:grid; grid-template-columns:repeat(auto-fill,minmax(266px,1fr)); gap:24px;
+    grid-auto-rows:1fr}                       /* every row equal height -> footers line up across the whole shelf */
   .cab{
     position:relative; border-radius:14px; padding:14px; background:linear-gradient(var(--dusk),var(--night2));
     box-shadow:0 0 0 1px rgba(240,207,134,.1), 0 18px 40px rgba(0,0,0,.45);
     transition:transform .2s, box-shadow .25s;
+    display:flex; flex-direction:column;       /* lets the footer cluster anchor to the bottom */
   }
+  .cab__marquee, .screen{flex:none}            /* protect the marquee + 16:10 art from flex squish */
   .cab:hover{transform:translateY(-6px); box-shadow:0 0 0 1px rgba(240,207,134,.28), 0 26px 60px rgba(0,0,0,.55), 0 0 50px rgba(210,116,63,.12)}
   .cab__marquee{font-family:var(--pixel); font-size:11px; letter-spacing:1px; text-align:center;
     color:var(--night); background:linear-gradient(var(--amber),var(--dust)); border-radius:6px; padding:9px; margin-bottom:12px;
@@ -166,10 +169,10 @@
     color:var(--amber); text-shadow:0 0 18px rgba(240,207,134,.45); padding:0 18px; letter-spacing:.01em;
     animation:cardflk 5.5s steps(1) infinite}
   @keyframes cardflk{0%,94%,100%{opacity:1}96%{opacity:.5}}
-  .cab__body{padding:14px 6px 4px}
+  .cab__body{padding:14px 6px 4px; flex:1 1 auto; display:flex; flex-direction:column}
   .cab__title{font-family:var(--display); font-weight:700; font-size:1.32rem; letter-spacing:.01em}
   .cab__line{color:var(--muted); font-size:.95rem; margin-top:5px; min-height:2.7em}
-  .cab__foot{display:flex; align-items:center; justify-content:space-between; gap:8px 10px; flex-wrap:wrap; margin-top:14px}
+  .cab__foot{display:flex; align-items:center; justify-content:space-between; gap:8px 10px; flex-wrap:wrap; margin-top:auto}
   .pill{font-family:var(--pixel); font-size:8px; letter-spacing:1px; padding:6px 9px; border-radius:4px;
     color:var(--amber); background:rgba(240,207,134,.08); border:1px solid var(--line)}
   .pill--live{color:#bfe6a8; background:rgba(120,200,120,.1); border-color:rgba(120,200,120,.25)}
