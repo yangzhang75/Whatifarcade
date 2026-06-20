@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Firefly Jar · build v0.13 · 2026-06-20 · Noodle Studios / What If Arcade · three scenes (meadow/forest/mesa) for MVP -->
+<!-- Firefly Jar · build v0.14 · 2026-06-20 · Noodle Studios / What If Arcade · three scenes (meadow/forest/mesa) for MVP -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -18,16 +18,20 @@
   html,body{margin:0;height:100%}
   body{background:var(--night); color:var(--ink);
     font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    min-height:100dvh; padding:10px; gap:8px; overflow:hidden;}
+    display:grid; place-items:center;
+    margin:0; min-height:100dvh; overflow:hidden;}
   .eyebrow{font-family:var(--mono); font-size:9px; letter-spacing:.18em; color:var(--rust); text-transform:uppercase; opacity:.85;}
-  #stage{position:relative;}
+  #stage{position:relative; line-height:0;}
   canvas#game{
     image-rendering:pixelated; image-rendering:crisp-edges;
-    width:min(96vw, calc((100dvh - 116px) * 0.5625)); height:auto; max-width:96vw;
-    aspect-ratio:144/256; border-radius:12px; border:1px solid var(--line);
-    display:block; touch-action:none;
-    box-shadow:0 20px 56px -24px rgba(208,116,63,.55);}
+    width:min(100vw, calc(100dvh * 0.5625)); height:auto; max-height:100dvh;
+    aspect-ratio:144/256; display:block; touch-action:none;}
+  #topbar{position:fixed; top:0; left:0; right:0; z-index:20; pointer-events:none;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:7px 10px; background:linear-gradient(rgba(14,11,22,.6),rgba(14,11,22,0));}
+  #topbar .eyebrow{font-size:7px;}
+  #topbar .topright{display:flex; align-items:center; gap:6px;}
+  #topbar button.mini{pointer-events:auto; flex:none; padding:6px 8px;}
   .overlay{position:absolute; inset:0; display:flex; flex-direction:column;
     align-items:center; justify-content:center; text-align:center; gap:15px; line-height:1.55;
     padding:24px; border-radius:12px; cursor:pointer;
@@ -58,7 +62,6 @@
 </style>
 </head>
 <body>
-<div class="eyebrow">Noodle Studios · What If Arcade</div>
 <div id="stage">
   <canvas id="game" width="144" height="256" tabindex="0"></canvas>
   <div class="overlay" id="intro">
@@ -76,10 +79,13 @@
     <button class="chip" id="changePlace">← another place</button>
   </div>
 </div>
-<div class="seedtag" id="seedtag">#00000 · clear</div>
-<div class="bar2">
-  <button class="mini on" id="sound">sound: on</button>
-  <button class="mini" id="music">music: off</button>
+<div id="topbar">
+  <div class="eyebrow">Noodle Studios · What If Arcade</div>
+  <div class="topright">
+    <span class="seedtag" id="seedtag">#00000 · clear</span>
+    <button class="mini on" id="sound">sound: on</button>
+    <button class="mini" id="music">music: off</button>
+  </div>
 </div>
 
 <!-- shared relight kernel (single source of truth: Lab + reader + games) -->
