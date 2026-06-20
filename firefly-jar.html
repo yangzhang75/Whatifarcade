@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Firefly Jar · build v0.12 · 2026-06-20 · Noodle Studios / What If Arcade · three scenes (meadow/forest/mesa) for MVP -->
+<!-- Firefly Jar · build v0.13 · 2026-06-20 · Noodle Studios / What If Arcade · three scenes (meadow/forest/mesa) for MVP -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -19,12 +19,12 @@
   body{background:var(--night); color:var(--ink);
     font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    min-height:100dvh; padding:16px; gap:11px; overflow:hidden;}
+    min-height:100dvh; padding:10px; gap:8px; overflow:hidden;}
   .eyebrow{font-family:var(--mono); font-size:9px; letter-spacing:.18em; color:var(--rust); text-transform:uppercase; opacity:.85;}
   #stage{position:relative;}
   canvas#game{
     image-rendering:pixelated; image-rendering:crisp-edges;
-    height:min(70dvh,560px); width:auto; max-width:94vw;
+    width:min(96vw, calc((100dvh - 116px) * 0.5625)); height:auto; max-width:96vw;
     aspect-ratio:144/256; border-radius:12px; border:1px solid var(--line);
     display:block; touch-action:none;
     box-shadow:0 20px 56px -24px rgba(208,116,63,.55);}
