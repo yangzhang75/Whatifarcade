@@ -177,7 +177,15 @@
   .cab__link:hover{color:var(--amber)}
   .cab--soon .cab__link{color:var(--muted); pointer-events:none}
   /* ---- thumbs-up votes ---- */
-  .cab__rate{display:flex; align-items:center; margin-top:13px; padding-top:12px; border-top:1px solid var(--line)}
+  .cab__rate{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:13px; padding-top:12px; border-top:1px solid var(--line)}
+  /* ---- "coins inserted" play counter (left edge, mirrors the vote on the right) ---- */
+  .coins{display:inline-flex; align-items:center; gap:6px; white-space:nowrap;
+    font-family:var(--pixel); font-size:9px; letter-spacing:.5px; color:var(--dust)}
+  .coins__ic{width:15px; height:15px; flex:none; filter:drop-shadow(0 0 5px rgba(240,207,134,.32))}
+  .coins__n{color:var(--amber); min-width:1ch; font-variant-numeric:tabular-nums}
+  .coins__lbl{color:var(--muted); font-size:8px; letter-spacing:.5px}
+  .coins.bump .coins__ic{animation:coinbump .5s cubic-bezier(.2,.8,.3,1.4)}
+  @keyframes coinbump{0%{transform:translateY(0) rotate(0)}40%{transform:translateY(-3px) rotate(-12deg)}100%{transform:translateY(0) rotate(0)}}
   .vote{position:relative; display:inline-flex; align-items:center; gap:7px; cursor:pointer;
     font-family:var(--pixel); font-size:9px; letter-spacing:.5px; color:var(--dust);
     background:rgba(240,207,134,.06); border:1px solid var(--line); border-radius:999px;
@@ -196,7 +204,7 @@
     color:var(--amber); pointer-events:none; opacity:0; white-space:nowrap}
   .vote__fly.go{animation:votefly .72s ease-out forwards}
   @keyframes votefly{0%{opacity:0; transform:translate(-50%,0)}22%{opacity:1}100%{opacity:0; transform:translate(-50%,-24px)}}
-  @media(prefers-reduced-motion:reduce){.vote.pop .vote__ic{animation:none} .vote__fly.go{animation:none}}
+  @media(prefers-reduced-motion:reduce){.vote.pop .vote__ic{animation:none} .vote__fly.go{animation:none} .coins.bump .coins__ic{animation:none}}
 
   /* ---------- about the studios ---------- */
   .studios{padding:6px 0 124px; background:var(--night)}
@@ -346,6 +354,7 @@
             <a class="cab__link" href="play.html">Peek inside →</a>
           </div>
           <div class="cab__rate">
+            <span class="coins" data-game="ironline" aria-label="IRONLINE coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
             <button class="vote" type="button" data-game="ironline" aria-pressed="false" aria-label="Like IRONLINE"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -363,6 +372,7 @@
             <a class="cab__link" href="firefly-jar.html">Peek inside →</a>
           </div>
           <div class="cab__rate">
+            <span class="coins" data-game="firefly" aria-label="Firefly Jar coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
             <button class="vote" type="button" data-game="firefly" aria-pressed="false" aria-label="Like Firefly Jar"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -378,6 +388,7 @@
             <span class="pill">In the workshop</span>
           </div>
           <div class="cab__rate">
+            <span class="coins" data-game="sailing" aria-label="Sailing game coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
             <button class="vote" type="button" data-game="sailing" aria-pressed="false" aria-label="Like the sailing game"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -392,6 +403,7 @@
             <span class="pill">In the workshop</span>
           </div>
           <div class="cab__rate">
+            <span class="coins" data-game="pixelwar" aria-label="Pixel war coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
             <button class="vote" type="button" data-game="pixelwar" aria-pressed="false" aria-label="Like more pixel war"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -406,6 +418,7 @@
             <span class="pill">In the workshop</span>
           </div>
           <div class="cab__rate">
+            <span class="coins" data-game="warhammer" aria-label="Warhammer game coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
             <button class="vote" type="button" data-game="warhammer" aria-pressed="false" aria-label="Like the Warhammer game"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -420,6 +433,7 @@
             <span class="pill">In the workshop</span>
           </div>
           <div class="cab__rate">
+            <span class="coins" data-game="noodle" aria-label="Noodle game coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
             <button class="vote" type="button" data-game="noodle" aria-pressed="false" aria-label="Like the Noodle game"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -434,6 +448,7 @@
             <span class="pill">In the workshop</span>
           </div>
           <div class="cab__rate">
+            <span class="coins" data-game="koi" aria-label="Koi Fish Pond Simulator coins inserted"><svg class="coins__ic" aria-hidden="true"><use href="#coin"/></svg><span class="coins__n">0</span><span class="coins__lbl">inserted</span></span>
             <button class="vote" type="button" data-game="koi" aria-pressed="false" aria-label="Like Koi Fish Pond Simulator"><svg class="vote__ic" aria-hidden="true"><use href="#thumb"/></svg><span class="vote__n">0</span></button>
           </div>
         </div>
@@ -559,10 +574,13 @@
     if(VOTE_ENDPOINT){
       window.__wiaVotes = function(data){
         if(!data) return;
+        // new shape: {votes:{...}, plays:{...}}.  legacy shape: a flat {game:count} == votes.
+        var vmap = (data.votes && typeof data.votes==='object') ? data.votes : data;
         votes.forEach(function(btn){
           var g=btn.getAttribute('data-game');
-          if(typeof data[g]==='number') setN(btn, data[g]);
+          if(typeof vmap[g]==='number') setN(btn, vmap[g]);
         });
+        if(data.plays && typeof window.__wiaApplyPlays==='function') window.__wiaApplyPlays(data.plays);
       };
       var s=document.createElement('script');
       s.src=VOTE_ENDPOINT+(VOTE_ENDPOINT.indexOf('?')<0?'?':'&')+'callback=__wiaVotes&t='+Date.now();
@@ -584,6 +602,38 @@
         btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
         fly(btn, nv?'+1':'−1');
         if(VOTE_ENDPOINT){ try{ fetch(VOTE_ENDPOINT,{method:'POST',mode:'no-cors',body:new URLSearchParams({type:'vote',game:g,delta:String(delta),ref:location.href,ts:new Date().toISOString()})}); }catch(_){} }
+      });
+    });
+  })();
+
+  // ---- "coins inserted" play counter ----
+  // a play == a coin: clicking an active cabinet's link increments that game's count.
+  // counts are shared/persistent via the same Apps Script (type=play) and read back as data.plays.
+  (function(){
+    var coins = Array.prototype.slice.call(document.querySelectorAll('.coins'));
+    if(!coins.length) return;
+    function nEl(c){ return c.querySelector('.coins__n'); }
+    function getC(c){ return parseInt(nEl(c).textContent,10)||0; }
+    function setC(c,n){ nEl(c).textContent = n>0?n:0; }
+    function byGame(g){ for(var i=0;i<coins.length;i++){ if(coins[i].getAttribute('data-game')===g) return coins[i]; } return null; }
+    // shared counts arrive through the votes JSONP read (data.plays)
+    window.__wiaApplyPlays = function(map){
+      if(!map) return;
+      coins.forEach(function(c){ var g=c.getAttribute('data-game'); if(typeof map[g]==='number') setC(c, map[g]); });
+    };
+    // insert a coin when an active cabinet's link is clicked (coming-soon cards have no link)
+    var links = Array.prototype.slice.call(document.querySelectorAll('.cab:not(.cab--soon) .cab__link[href]'));
+    links.forEach(function(a){
+      var cab=a.closest('.cab'), v=cab&&cab.querySelector('.vote'), g=v&&v.getAttribute('data-game');
+      if(!g) return;
+      a.addEventListener('click', function(){
+        var c=byGame(g);
+        if(c){ setC(c, getC(c)+1); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }
+        if(VOTE_ENDPOINT){ try{
+          var body=new URLSearchParams({type:'play',game:g,ref:location.href,ts:new Date().toISOString()});
+          if(navigator.sendBeacon){ navigator.sendBeacon(VOTE_ENDPOINT, body); }   // survives navigation
+          else { fetch(VOTE_ENDPOINT,{method:'POST',mode:'no-cors',keepalive:true,body:body}); }
+        }catch(_){} }
       });
     });
   })();
