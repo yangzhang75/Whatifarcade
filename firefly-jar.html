@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Firefly Jar · build v0.9 · 2026-06-20 · Noodle Studios / What If Arcade · three scenes (meadow/forest/mesa) for MVP -->
+<!-- Firefly Jar · build v0.10 · 2026-06-20 · Noodle Studios / What If Arcade · three scenes (meadow/forest/mesa) for MVP -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -462,13 +462,13 @@ function drawFar(scene, warmth, sunX, sunY, clock, moonX, moonY, mp){
       }
       // dynamic sun descending in the cleared gap, setting behind the desert horizon
       if(warmth>0 && sunY<HORM+24){
-        for(let yy=-22;yy<=22;yy++)for(let xx=-22;xx<=22;xx++){ const py=sunY+yy; if(py>=HORM||py<0)continue; const dd=dist(xx,yy); if(dd>22)continue; blendPx(sunX+xx,py,250,200,120, warmth*(1-dd/22)*0.18); }
-        for(let yy=-10;yy<=10;yy++)for(let xx=-10;xx<=10;xx++){ const py=sunY+yy; if(py>=HORM||py<0)continue; const dd=dist(xx,yy); if(dd>10)continue; const c=mix([255,232,172],[255,176,86],dd/10); blendPx(sunX+xx,py,c[0],c[1],c[2],0.96); }
+        for(let yy=-22;yy<=22;yy++)for(let xx=-22;xx<=22;xx++){ const px=sunX+xx, py=sunY+yy; if(px<0||px>=W||py<0||py>=MESA_SKYLINE[px])continue; const dd=dist(xx,yy); if(dd>22)continue; blendPx(sunX+xx,py,250,200,120, warmth*(1-dd/22)*0.18); }
+        for(let yy=-10;yy<=10;yy++)for(let xx=-10;xx<=10;xx++){ const px=sunX+xx, py=sunY+yy; if(px<0||px>=W||py<0||py>=MESA_SKYLINE[px])continue; const dd=dist(xx,yy); if(dd>10)continue; const c=mix([255,232,172],[255,176,86],dd/10); blendPx(sunX+xx,py,c[0],c[1],c[2],0.96); }
       }
       // a rising moon over the darkened mesa (clipped to the sky)
       if(mp>0){ const a2=smooth(clamp(mp*1.6))*0.96, hg=smooth(clamp(mp*1.4));
-        for(let yy=-15;yy<=15;yy++)for(let xx=-15;xx<=15;xx++){ const py=moonY+yy; if(py>=HORM||py<0)continue; const dd=dist(xx,yy); if(dd>15)continue; blendPx(moonX+xx,py,150,165,200, hg*(1-dd/15)*0.12); }
-        for(let yy=-7;yy<=7;yy++)for(let xx=-7;xx<=7;xx++){ const py=moonY+yy; if(py>=HORM||py<0)continue; const dd=dist(xx,yy); if(dd>7)continue; let col=C.moon; if((xx===-2&&yy===-1)||(xx===2&&yy===2))col=mix(C.moon,C.night,0.22); blendPx(moonX+xx,py,col[0],col[1],col[2], dd>6?a2*0.6:a2); }
+        for(let yy=-15;yy<=15;yy++)for(let xx=-15;xx<=15;xx++){ const px=moonX+xx, py=moonY+yy; if(px<0||px>=W||py<0||py>=MESA_SKYLINE[px])continue; const dd=dist(xx,yy); if(dd>15)continue; blendPx(moonX+xx,py,150,165,200, hg*(1-dd/15)*0.12); }
+        for(let yy=-7;yy<=7;yy++)for(let xx=-7;xx<=7;xx++){ const px=moonX+xx, py=moonY+yy; if(px<0||px>=W||py<0||py>=MESA_SKYLINE[px])continue; const dd=dist(xx,yy); if(dd>7)continue; let col=C.moon; if((xx===-2&&yy===-1)||(xx===2&&yy===2))col=mix(C.moon,C.night,0.22); blendPx(moonX+xx,py,col[0],col[1],col[2], dd>6?a2*0.6:a2); }
       }
     }
     return;
